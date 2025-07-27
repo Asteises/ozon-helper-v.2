@@ -1,0 +1,15 @@
+server:
+  port: 1212
+
+logging:
+  level:
+    ru.asteises.ozonhelper.config.telegram: DEBUG
+    org.telegram: INFO
+
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN}
+
+spring:
+  application:
+    name: ozon-helper
