@@ -39,6 +39,7 @@ public class UpdateListener implements LongPollingUpdateConsumer {
             log.debug("Income Update: [ {} ]", update);
 
             HandlerType type = detectHandlerType(update);
+            log.debug("Handler type detected: {}", type);
             UpdateHandler handler = handlerMap.get(type);
 
             if (handler != null && handler.canHandle(update)) {

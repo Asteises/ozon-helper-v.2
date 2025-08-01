@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Slf4j
@@ -15,18 +16,30 @@ public class MessageService {
 
     private final OkHttpTelegramClient client;
 
+    public void sendMessage(SendMessage sendMessage) {
+        executeMessage(sendMessage);
+    }
+
     public void sendMessage(Long chatId, String message) {
         SendMessage sendMessage = getMessage(chatId, message);
         executeMessage(sendMessage);
     }
 
-    public void sendInlineButtonMessage(Long chatId, String text, InlineKeyboardMarkup inlineKeyboardMarkup) {
+    public void sendMessage(Long chatId, String messageText, ReplyKeyboardMarkup replyKeyboardMarkup) {
         SendMessage sendMessage = SendMessage.builder()
                 .chatId(chatId)
-                .text(text)
+                .text(messageText)
+                .replyMarkup(replyKeyboardMarkup)
+                .build();
+        executeMessage(sendMessage);
+    }
+
+    public void sendMessage(Long chatId, String messageText, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        SendMessage sendMessage = SendMessage.builder()
+                .chatId(chatId)
+                .text(messageText)
                 .replyMarkup(inlineKeyboardMarkup)
                 .build();
-        log.debug("Send message {}", sendMessage);
         executeMessage(sendMessage);
     }
 

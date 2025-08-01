@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo MiniApp</title>
+    <!-- Фикс: принудительная загрузка свежего telegram-web-app.js -->
+    <script src="https://telegram.org/js/telegram-web-app.js?69"></script>
+</head>
+<body>
+<h1>Demo MiniApp</h1>
+<div id="user"></div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+
+    // Ждём готовности MiniApp
+    tg.ready();
+    tg.expand();
+
+    // Проверяем, что initData получен
+    if (tg.initDataUnsafe?.user) {
+        document.getElementById('user').innerText =
+            "Hello, " + tg.initDataUnsafe.user.first_name;
+    } else {
+        document.getElementById('user').innerText =
+            "Hello, Guest!";
+    }
+</script>
+</body>
+</html>
+

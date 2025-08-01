@@ -8,12 +8,13 @@ import ru.asteises.ozonhelper.enums.UserStatus;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@EqualsAndHashCode
+@Table(name = "users")
 public class UserEntity {
 
     @Id
@@ -46,5 +47,20 @@ public class UserEntity {
 
     @Column(name = "encrypted_api_key")
     private String encryptedApiKey;
+
+    @Transient
+    public boolean hasSecrets() {
+        return hasClientId() && hasEncryptedApiKey();
+    }
+
+    @Transient
+    public boolean hasClientId() {
+        return clientId != null && !clientId.isBlank();
+    }
+
+    @Transient
+    public boolean hasEncryptedApiKey() {
+        return encryptedApiKey != null && !encryptedApiKey.isBlank();
+    }
 }
 

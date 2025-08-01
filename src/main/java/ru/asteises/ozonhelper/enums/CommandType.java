@@ -1,17 +1,20 @@
 package ru.asteises.ozonhelper.enums;
 
-import lombok.Getter;
-
 import java.util.Arrays;
 
-@Getter
-public enum CommandType {
+
+public enum CommandType implements Type<CommandType> {
     START("start");
 
     private final String name;
 
     CommandType(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     public static boolean isExist(String commandText) {
