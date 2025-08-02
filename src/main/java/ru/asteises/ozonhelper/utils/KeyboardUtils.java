@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo;
 import ru.asteises.ozonhelper.enums.CallbackType;
 import ru.asteises.ozonhelper.model.ButtonDto;
 
@@ -28,6 +29,10 @@ public class KeyboardUtils {
         return ButtonDto.builder().text(text).callback(callbackType).build();
     }
 
+    public static ButtonDto getButton(String text, String webAppUrl) {
+        return ButtonDto.builder().text(text).webAppUrl(webAppUrl).build();
+    }
+
     public static InlineKeyboardButton getInlineKeyboardButton(String text, CallbackType callbackType) {
         return InlineKeyboardButton.builder()
                 .text(text)
@@ -36,6 +41,13 @@ public class KeyboardUtils {
     }
 
     public static InlineKeyboardButton getInlineKeyboardButton(ButtonDto buttonDto) {
+        if (buttonDto.getCallback() == null) {
+            WebAppInfo webAppInfo = WebAppInfo.builder().url(buttonDto.getWebAppUrl()).build();
+            return InlineKeyboardButton.builder()
+                    .text(buttonDto.getText())
+                    .webApp(webAppInfo)
+                    .build();
+        }
         return InlineKeyboardButton.builder()
                 .text(buttonDto.getText())
                 .callbackData(buttonDto.getCallback().getName())
@@ -97,6 +109,15 @@ public class KeyboardUtils {
      */
     public static InlineKeyboardMarkup getSimpleInlineKeyboard(String text, CallbackType callbackType) {
         ButtonDto button = getButton(text, callbackType);
+        InlineKeyboardButton inlineKeyboardButton = getInlineKeyboardButton(button);
+        InlineKeyboardRow row = new InlineKeyboardRow();
+
+        row.add(inlineKeyboardButton);
+        return new InlineKeyboardMarkup(Collections.singletonList(row));
+    }
+
+    public static InlineKeyboardMarkup getSimpleInlineKeyboard(String text, String webAppUrl) {
+        ButtonDto button = getButton(text, webAppUrl);
         InlineKeyboardButton inlineKeyboardButton = getInlineKeyboardButton(button);
         InlineKeyboardRow row = new InlineKeyboardRow();
 
