@@ -14,4 +14,5 @@ public class ButtonDto {
 
     private String text;
     private CallbackType callback;
+    private String webAppUrl;
 }
