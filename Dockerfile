@@ -1,3 +1,4 @@
+# ---- Stage 1: Build frontend ----
 FROM node:20-alpine AS frontend-build
 WORKDIR /app/frontend
 
@@ -5,26 +6,24 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
 
-# Копируем исходники и собираем фронт
-COPY frontend ./
-RUN npm run build
+# Копируем фронтенд код и билдим (файлы уйдут в ../src/main/resources/static/miniapp)
+COPY frontend/ ./
+WORKDIR /app
+RUN npm run --prefix frontend build
 
-# ---- Backend build ----
+# ---- Stage 2: Build backend ----
 FROM eclipse-temurin:23-jdk AS build
 WORKDIR /app
 
-# Копируем pom.xml и src
+# Копируем pom.xml и backend
 COPY pom.xml .
 COPY src ./src
 
-# Копируем билд фронта в static/miniapp
-COPY --from=frontend-build /app/frontend/dist/ ./src/main/resources/static/miniapp
-
-# Устанавливаем Maven и собираем
+# Устанавливаем Maven и собираем JAR
 RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 RUN mvn clean package -DskipTests
 
-# ---- Runtime ----
+# ---- Stage 3: Runtime ----
 FROM eclipse-temurin:23-jre
 WORKDIR /app
 COPY --from=build /app/target/ozon-helper-*.jar ./app.jar
