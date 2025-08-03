@@ -32,3 +32,25 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Node
+/node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.DS_Store
+
+# Логи и lock-файлы (если не нужны в репо)
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Артефакты Vite
+frontend/.cache/
+
+# Артефакты IDE (если не игнорируются глобально)
+.idea/
+
+# Если билд фронта копируется в Spring Boot
+src/main/resources/static/miniapp/*
+!src/main/resources/static/miniapp/.gitkeep
