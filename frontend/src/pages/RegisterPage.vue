@@ -30,14 +30,17 @@ declare global {
   }
 }
 
-
-console.log("Telegram object:", window.Telegram);
-console.log("WebApp:", window.Telegram?.WebApp);
-console.log("initData:", window.Telegram?.WebApp?.initData);
-console.log("initDataUnsafe:", window.Telegram?.WebApp?.initDataUnsafe);
-console.log("User:", window.Telegram?.WebApp?.initDataUnsafe?.user);
-
 const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg?.ready();
+  console.log("Telegram object:", window.Telegram);
+  console.log("WebApp:", tg);
+  console.log("initData:", tg?.initData);
+  console.log("initDataUnsafe:", tg?.initDataUnsafe);
+  console.log("User:", tg?.initDataUnsafe?.user);
+}
+
+console.log("initData:", tg?.initData);
 const user = tg?.initDataUnsafe?.user;
 
 console.log("User from Telegram:", user);
