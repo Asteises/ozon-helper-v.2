@@ -95,7 +95,7 @@ const saveData = async () => {
       }
     }
 
-    const response = await fetch('/save', {
+    const response = await fetch('/dev/bot/ozon/helper/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(registerData)
@@ -104,7 +104,7 @@ const saveData = async () => {
     if (!response.ok) throw new Error('Ошибка при сохранении данных')
 
     userStore.setCredentials(clientId.value, apiKey.value)
-    router.push('/menu')
+    await router.push('/menu')
   } catch (err: any) {
     message.value = err.message
   } finally {

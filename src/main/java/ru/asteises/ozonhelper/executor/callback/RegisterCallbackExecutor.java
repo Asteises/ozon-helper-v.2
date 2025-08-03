@@ -34,28 +34,6 @@ public class RegisterCallbackExecutor implements CallbackExecutor {
     public void execute(Update update) {
         User user = update.getCallbackQuery().getFrom();
         Long userTgId = user.getId();
-        try {
-            UserEntity userEntity = userService.getUser(user);
-            // Пользователь уже зарегистрирован
-            if (userEntity != null) {
-                log.debug("User tg id: [ {} ] already exists", userTgId);
-                // Пользователь уже добавил секреты
-                if (userEntity.hasSecrets()) {
-                    log.debug("User tg id: [ {} ] has a secrets", userTgId);
-                    sendEmptyMessage(update);
-                    return;
-                }
-                // Пользователь зарегистрировался, но не добавил секреты
-                log.debug("User tg id: [ {} ] register but has no secrets", userTgId);
-                sendMessage(update);
-                return;
-            }
-            log.debug("User tg id: [ {} ] register", userTgId);
-            userService.saveUser(user);
-            sendMessage(update);
-        } catch (Exception e) {
-            log.error("Something went wrong in RegisterCallbackExecutor process: [ {} ]", e.getMessage(), e);
-        }
     }
 
     private void sendEmptyMessage(Update update) {
