@@ -103,6 +103,9 @@ const saveData = async () => {
 
     if (!response.ok) throw new Error('Ошибка при сохранении данных')
 
+    const result = await response.text()
+    console.log('result text: ', result)
+
     userStore.setCredentials(clientId.value, apiKey.value)
     await router.push('/menu')
   } catch (err: any) {

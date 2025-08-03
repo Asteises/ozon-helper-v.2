@@ -26,6 +26,8 @@ public class Mapper {
     public static UserEntity mapUser(RegisterUserData registerUserData) {
         return UserEntity.builder()
                 .telegramUserId(registerUserData.getTelegramUserId())
+                .clientId(registerUserData.getOzonDataForm().getClientId())
+                .encryptedApiKey(registerUserData.getOzonDataForm().getApiKey())
                 .role(UserRole.SELLER)
                 .status(UserStatus.ACTIVE)
                 .username(registerUserData.getUsername())
