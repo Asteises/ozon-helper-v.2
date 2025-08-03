@@ -38,8 +38,6 @@ EXPOSE 1212
 ENV SPRING_PROFILES_ACTIVE=dev
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
-
-
 #FROM eclipse-temurin:23-jdk AS build
 #WORKDIR /app
 #
