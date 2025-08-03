@@ -3,6 +3,7 @@ package ru.asteises.ozonhelper.mapper;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.asteises.ozonhelper.enums.UserRole;
 import ru.asteises.ozonhelper.enums.UserStatus;
+import ru.asteises.ozonhelper.model.RegisterUserData;
 import ru.asteises.ozonhelper.model.UserDto;
 import ru.asteises.ozonhelper.model.UserEntity;
 
@@ -18,6 +19,18 @@ public class Mapper {
                 .username(user.getUserName())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .registeredAt(LocalDateTime.now())
+                .build();
+    }
+
+    public static UserEntity mapUser(RegisterUserData registerUserData) {
+        return UserEntity.builder()
+                .telegramUserId(registerUserData.getTelegramUserId())
+                .role(UserRole.SELLER)
+                .status(UserStatus.ACTIVE)
+                .username(registerUserData.getUsername())
+                .firstName(registerUserData.getFirstName())
+                .lastName(registerUserData.getLastName())
                 .registeredAt(LocalDateTime.now())
                 .build();
     }
