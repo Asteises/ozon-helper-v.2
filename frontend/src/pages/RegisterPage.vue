@@ -30,6 +30,13 @@ declare global {
   }
 }
 
+
+console.log("Telegram object:", window.Telegram);
+console.log("WebApp:", window.Telegram?.WebApp);
+console.log("initData:", window.Telegram?.WebApp?.initData);
+console.log("initDataUnsafe:", window.Telegram?.WebApp?.initDataUnsafe);
+console.log("User:", window.Telegram?.WebApp?.initDataUnsafe?.user);
+
 const tg = window.Telegram?.WebApp;
 const user = tg?.initDataUnsafe?.user;
 
