@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.asteises.ozonhelper.mapper.Mapper;
 import ru.asteises.ozonhelper.model.RegisterUserData;
-import ru.asteises.ozonhelper.model.UserEntity;
+import ru.asteises.ozonhelper.model.entities.UserEntity;
 import ru.asteises.ozonhelper.repository.UserRepository;
 
 import java.util.Optional;
@@ -28,7 +28,9 @@ public class UserService {
                 saveNewUser(userData, userTgId);
                 return "Поздравляем! Вы зарегистрированы.";
             }
-            updateExistUser(userData, userTgId, existingUser);
+            if (!existingUser.hasAdditionalData()) {
+                updateExistUser(userData, userTgId, existingUser);
+            }
             return "Ваши данные успешно обновлены.";
         } catch (Exception e) {
             log.error("Something went wrong in user registration process: [ {} ]", e.getMessage(), e);
@@ -37,8 +39,7 @@ public class UserService {
     }
 
     private void updateExistUser(RegisterUserData userData, Long userTgId, UserEntity existingUser) {
-        log.debug("Updating secrets for existing user with tgId: {}", userTgId);
-        encryptSecrets(userData, existingUser);
+        log.debug("Updating data for existing user with td id: [ {} ]", userTgId);
         Mapper.updateUser(existingUser, userData);
         userRepository.save(existingUser);
     }
@@ -46,6 +47,7 @@ public class UserService {
     private void saveNewUser(RegisterUserData userData, Long userTgId) {
         log.debug("Registering new user with tg id: [ {} ]", userTgId);
         UserEntity newUser = Mapper.mapUser(userData);
+        encryptSecrets(userData, newUser);
         userRepository.save(newUser);
     }
 

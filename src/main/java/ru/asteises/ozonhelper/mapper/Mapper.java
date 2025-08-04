@@ -5,7 +5,7 @@ import ru.asteises.ozonhelper.enums.UserRole;
 import ru.asteises.ozonhelper.enums.UserStatus;
 import ru.asteises.ozonhelper.model.RegisterUserData;
 import ru.asteises.ozonhelper.model.UserDto;
-import ru.asteises.ozonhelper.model.UserEntity;
+import ru.asteises.ozonhelper.model.entities.UserEntity;
 
 import java.time.LocalDateTime;
 

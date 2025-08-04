@@ -1,4 +1,4 @@
-package ru.asteises.ozonhelper.model;
+package ru.asteises.ozonhelper.model.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -61,6 +61,21 @@ public class UserEntity {
     @Transient
     public boolean hasEncryptedApiKey() {
         return encryptedApiKey != null && !encryptedApiKey.isBlank();
+    }
+
+    @Transient
+    public boolean hasAdditionalData() {
+        return hasFirstName() && hasLastName();
+    }
+
+    @Transient
+    public boolean hasFirstName() {
+        return firstName != null && !firstName.isBlank();
+    }
+
+    @Transient
+    public boolean hasLastName() {
+        return lastName != null && !lastName.isBlank();
     }
 }
 

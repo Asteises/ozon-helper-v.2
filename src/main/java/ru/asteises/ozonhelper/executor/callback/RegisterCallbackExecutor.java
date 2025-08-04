@@ -8,7 +8,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.asteises.ozonhelper.enums.CallbackType;
 import ru.asteises.ozonhelper.model.ButtonDto;
-import ru.asteises.ozonhelper.model.UserEntity;
 import ru.asteises.ozonhelper.service.MessageService;
 import ru.asteises.ozonhelper.service.UserService;
 import ru.asteises.ozonhelper.utils.KeyboardUtils;
