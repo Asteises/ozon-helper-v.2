@@ -12,4 +12,5 @@ export interface RegisterUserData {
     lastName?: string;
     registeredAt?: string; // ISO строка
     ozonDataForm: OzonDataForm;
+    initData: any;
 }

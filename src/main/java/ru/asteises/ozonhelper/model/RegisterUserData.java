@@ -29,4 +29,6 @@ public class RegisterUserData {
     private LocalDateTime registeredAt;
 
     private OzonDataForm ozonDataForm;
+
+    private String telegramInitData;
 }
