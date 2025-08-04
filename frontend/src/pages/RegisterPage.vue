@@ -88,7 +88,7 @@ const saveData = async () => {
   try {
 
     if (!user) {
-      throw new Error('Пользователь Telegram не найден')
+      console.error('Пользователь Telegram не найден');
     }
 
     const registerData: RegisterUserData = {
