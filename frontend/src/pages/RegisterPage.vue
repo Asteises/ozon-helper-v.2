@@ -100,7 +100,7 @@ const saveData = async () => {
         clientId: clientId.value,
         apiKey: apiKey.value
       },
-      initData: tg?.initData
+      telegramInitData: tg?.initData
     }
 
     const response = await fetch('/dev/bot/ozon/helper/save', {
