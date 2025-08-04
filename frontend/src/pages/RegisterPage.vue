@@ -103,6 +103,8 @@ const saveData = async () => {
       telegramInitData: tg?.initData
     }
 
+    console.log("registerData: ", registerData)
+
     const response = await fetch('/dev/bot/ozon/helper/save', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},

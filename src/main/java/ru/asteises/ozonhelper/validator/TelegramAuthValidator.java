@@ -4,84 +4,86 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class TelegramAuthValidator {
 
+    /**
+     * Валидация initData из Telegram MiniApp
+     *
+     * @param initData строка из window.Telegram.WebApp.initData
+     * @param botToken полный токен бота от BotFather (ID:секрет)
+     * @return true, если данные подлинные
+     */
     public static boolean validate(String initData, String botToken) {
         log.debug("=== [TelegramAuthValidator] START VALIDATION ===");
-        log.debug("Raw initData: {}", initData);
-        log.debug("Bot token (masked): {}***", botToken.substring(0, 10));
+
+        log.debug("Bot token: {}", botToken);
 
         if (initData == null || initData.isBlank()) {
             log.warn("InitData is NULL or blank!");
             return false;
         }
 
-        // Парсим параметры
-        Map<String, String> dataMap = parseInitData(initData);
-        log.debug("Parsed dataMap (without hash): {}", dataMap);
+        /*
+        telegramInitData=
+        query_id=AAG8OosQAAAAALw6ixDVqQDA&
+        user=%7B%22id%22%3A277559996%2C%22
+        first_name%22%3A%22Filipp%22%2C%22
+        last_name%22%3A%22%22%2C%22
+        username%22%3A%22Asteises%22%2C%22
+        language_code%22%3A%22en%22%2C%22
+        is_premium%22%3Atrue%2C%22
+        allows_write_to_pm%22%3Atrue%2C%22
+        photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FstbNrthH9JEfLRGgwMNIq14tCNLWOpy-zlbae0iS7JE.svg%22%7D&
+        auth_date=1754308649&signature=OCpDNB9lozG1Gkem1idDhPTvHFffOz8VJR4IAyHzJ7hXne3V3uwu9FhOfkcSQ35iyljTTcaSSsf1f_C1NkofDA&
+        hash=7951d1acfc4ed0309f988a9e20ce0bd7de6f03fb7019f0a93aefe19e12fc3a67
+         */
+        log.debug("Raw initData: {}", initData);
+        Map<String, String> params = Arrays.stream(initData.split("&"))
+                .map(s -> s.split("=", 2))
+                .collect(Collectors.toMap(
+                        arr -> arr[0],
+                        arr -> URLDecoder.decode(arr[1], StandardCharsets.UTF_8)
+                ));
+        log.debug("Parsed params: {}", params);
 
-        String hash = dataMap.remove("hash");
-        if (hash == null) {
-            log.warn("Hash not found in initData!");
-            return false;
-        }
-        log.debug("Received hash: {}", hash);
-
-        // Формируем data_check_string
-        String dataCheckString = dataMap.entrySet().stream()
+        String dataCheckString = params.entrySet().stream()
+                .filter(e -> !"hash".equals(e.getKey()))
                 .sorted(Map.Entry.comparingByKey())
-                .map(entry -> entry.getKey() + "=" + entry.getValue())
-                .reduce((a, b) -> a + "\n" + b)
-                .orElse("");
+                .map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining("\n"));
+        log.debug("DataCheckString: {}", dataCheckString);
 
-        log.debug("Data check string (sorted): {}", dataCheckString);
-
-        // SHA256 от bot token = secret key
-        String secretKeyHex = hmacSha256(botToken.getBytes(StandardCharsets.UTF_8),
-                "TelegramBotToken".getBytes(StandardCharsets.UTF_8));
-        log.debug("Secret key (hex): {}", secretKeyHex);
-
-        // HMAC-SHA256(data_check_string, secret_key)
-        String computedHash = hmacSha256(
-                dataCheckString.getBytes(StandardCharsets.UTF_8),
-                hexStringToBytes(secretKeyHex)
-        );
-        log.debug("Computed hash: {}", computedHash);
-
-        boolean valid = computedHash.equals(hash);
-        log.debug("Validation result: {}", valid);
-
-        log.debug("=== [TelegramAuthValidator] END VALIDATION ===");
-        return valid;
-    }
-
-    private static Map<String, String> parseInitData(String initData) {
-        Map<String, String> map = new HashMap<>();
-        String[] pairs = initData.split("&");
-        for (String pair : pairs) {
-            String[] kv = pair.split("=", 2);
-            if (kv.length == 2) {
-                map.put(kv[0], kv[1]);
-            }
-        }
-        return map;
-    }
-
-    private static String hmacSha256(byte[] data, byte[] key) {
         try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(key, "HmacSHA256"));
-            byte[] result = mac.doFinal(data);
-            return bytesToHex(result);
+            byte[] secretKey = hmacSha256("WebAppData".getBytes(StandardCharsets.UTF_8), botToken);
+            byte[] hashBytes = hmacSha256(secretKey, dataCheckString);
+            String calculatedHash = bytesToHex(hashBytes);
+            if (!calculatedHash.equalsIgnoreCase(params.get("hash"))) {
+                throw new SecurityException("Invalid MiniApp signature");
+            }
+            long authDate = Long.parseLong(params.get("auth_date"));
+            if (Instant.now().getEpochSecond() - authDate > 300) {
+                throw new SecurityException("auth_date expired");
+            }
         } catch (Exception e) {
-            log.error("Error during HMAC calculation", e);
+            log.error("Failed to hmac sha256", e);
             throw new RuntimeException(e);
         }
+        return true;
+    }
+
+    private static byte[] hmacSha256(byte[] key, String data) throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec keySpec = new SecretKeySpec(key, "HmacSHA256");
+        mac.init(keySpec);
+        return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
     }
 
     private static String bytesToHex(byte[] bytes) {
@@ -89,17 +91,8 @@ public class TelegramAuthValidator {
         for (byte b : bytes) {
             sb.append(String.format("%02x", b));
         }
+        log.debug("bytesToHex: {}", sb.toString());
         return sb.toString();
     }
 
-    private static byte[] hexStringToBytes(String hex) {
-        int len = hex.length();
-        byte[] bytes = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            bytes[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i + 1), 16));
-        }
-        return bytes;
-    }
 }
-

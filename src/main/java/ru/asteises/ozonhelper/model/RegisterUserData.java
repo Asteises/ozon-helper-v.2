@@ -7,6 +7,7 @@ import ru.asteises.ozonhelper.enums.UserStatus;
 import java.time.LocalDateTime;
 
 
+@ToString
 @Getter
 @Setter
 @Builder
