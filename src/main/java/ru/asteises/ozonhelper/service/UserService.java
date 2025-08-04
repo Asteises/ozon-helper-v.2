@@ -17,28 +17,43 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CryptoService cryptoService;
 
     @Transactional
-    public String saveUser(RegisterUserData userData) {
+    public String saveOrUpdateUser(RegisterUserData userData) {
         Long userTgId = userData.getTelegramUserId();
         try {
-            UserEntity userEntity = getUserOrNull(userTgId);
-            // Пользователь уже зарегистрирован
-            if (userEntity != null) {
-                log.debug("User tg id: [ {} ] already exists", userTgId);
-                if (!userEntity.hasSecrets()) {
-                    log.debug("User tg id: [ {} ] already exists but don't has secrets", userTgId);
-                } else {
-                    return "Вы уже зарегистрированы. Повторная регистрация не требуется.";
-                }
+            UserEntity existingUser = getUserOrNull(userTgId);
+            if (existingUser == null) {
+                saveNewUser(userData, userTgId);
+                return "Поздравляем! Вы зарегистрированы.";
             }
-            log.debug("User tg id: [ {} ] register", userTgId);
-            userEntity = Mapper.mapUser(userData);
-            userRepository.save(userEntity);
-            return "Поздравляем! Вы зарегистрированы.";
+            updateExistUser(userData, userTgId, existingUser);
+            return "Ваши данные успешно обновлены.";
         } catch (Exception e) {
             log.error("Something went wrong in user registration process: [ {} ]", e.getMessage(), e);
             return "Что-то пошло не так во время регистрации нового пользователя. Пожалуйста попробуйте позже или обратитесь к администратору.";
+        }
+    }
+
+    private void updateExistUser(RegisterUserData userData, Long userTgId, UserEntity existingUser) {
+        log.debug("Updating secrets for existing user with tgId: {}", userTgId);
+        encryptSecrets(userData, existingUser);
+        Mapper.updateUser(existingUser, userData);
+        userRepository.save(existingUser);
+    }
+
+    private void saveNewUser(RegisterUserData userData, Long userTgId) {
+        log.debug("Registering new user with tg id: [ {} ]", userTgId);
+        UserEntity newUser = Mapper.mapUser(userData);
+        userRepository.save(newUser);
+    }
+
+    private void encryptSecrets(RegisterUserData userData, UserEntity existingUser) {
+        if (userData.getOzonDataForm() != null) {
+            existingUser.setClientId(userData.getOzonDataForm().getClientId());
+            String encryptApiKey = cryptoService.encrypt(userData.getOzonDataForm().getApiKey());
+            existingUser.setEncryptedApiKey(encryptApiKey);
         }
     }
 

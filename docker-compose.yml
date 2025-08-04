@@ -32,6 +32,8 @@ services:
       DB_NAME: ${DB_NAME}
       DB_PASSWORD: ${DB_PASSWORD}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      ENCRYPT_PASSWORD: ${ENCRYPT_PASSWORD}
+      ENCRYPT_SALT: ${ENCRYPT_SALT}
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:1212/actuator/health || exit 1" ]
       interval: 15s

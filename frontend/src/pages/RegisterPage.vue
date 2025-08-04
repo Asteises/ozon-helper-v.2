@@ -36,15 +36,9 @@ let user: any;
 
 if (tg) {
   tg?.ready();
-  console.log("Telegram object:", window.Telegram);
-  console.log("WebApp:", tg);
-  console.log("initData:", tg?.initData);
-  console.log("initDataUnsafe:", tg?.initDataUnsafe);
-  console.log("User:", tg?.initDataUnsafe?.user);
 
   if (tg.initDataUnsafe?.user) {
     user = tg?.initDataUnsafe?.user;
-    console.log("User from Telegram:", user);
     userStore.setTelegramUser(user)
   } else {
     console.error('Нет данных пользователя из Telegram WebApp');

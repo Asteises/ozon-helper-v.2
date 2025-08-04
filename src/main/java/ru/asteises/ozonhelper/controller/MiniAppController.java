@@ -27,11 +27,11 @@ public class MiniAppController {
     @ResponseBody
     @PostMapping("/save")
     public ResponseEntity<String> saveOzonData(@RequestBody RegisterUserData registerUserData) {
-        log.debug(registerUserData.toString());
+        log.debug("Registration data for user tg id: [ {} ]", registerUserData.getTelegramUserId());
         if (!TelegramAuthValidator.validate(registerUserData.getTelegramInitData(), botToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid hash");
         }
-        String registrationMessage = userService.saveUser(registerUserData);
+        String registrationMessage = userService.saveOrUpdateUser(registerUserData);
         return ResponseEntity.ok(registrationMessage);
     }
 

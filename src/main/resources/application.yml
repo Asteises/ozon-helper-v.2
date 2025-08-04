@@ -28,6 +28,9 @@ ozon:
   api:
     url: https://api-seller.ozon.ru
 
+encryption:
+  password: ${ENCRYPT_PASSWORD}
+  salt: ${ENCRYPT_SALT}
 spring:
   application:
     name: ozon-helper

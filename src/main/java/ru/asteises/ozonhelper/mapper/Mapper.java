@@ -37,6 +37,12 @@ public class Mapper {
                 .build();
     }
 
+    public static void updateUser(UserEntity userEntity, RegisterUserData registerUserData) {
+        if (registerUserData.getUsername() != null) userEntity.setUsername(registerUserData.getUsername());
+        if (registerUserData.getFirstName() != null) userEntity.setFirstName(registerUserData.getFirstName());
+        if (registerUserData.getLastName() != null) userEntity.setLastName(registerUserData.getLastName());
+    }
+
     public static UserDto mapUser(UserEntity user) {
         return UserDto.builder()
                 .build();
