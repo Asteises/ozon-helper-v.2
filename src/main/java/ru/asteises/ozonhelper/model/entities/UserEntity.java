@@ -42,6 +42,9 @@ public class UserEntity {
     @Column(name = "registered_at")
     private LocalDateTime registeredAt;
 
+    @Column(name = "premium")
+    private Boolean premium;
+
     @Column(name = "client_id")
     private String clientId;
 
