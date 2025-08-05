@@ -36,6 +36,7 @@ router.beforeEach(async (to) => {
     }
 
     // В продакшене проверяем через /check
+    console.log('Try to verify and check user...')
     const result = await verifyAndCheckUser()
 
     if (result === 'unauthorized') return '/error'

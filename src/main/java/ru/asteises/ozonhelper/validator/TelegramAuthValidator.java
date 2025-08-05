@@ -14,6 +14,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TelegramAuthValidator {
 
+    public static Boolean validate(String initData, String botToken) {
+        return validateInitData(initData, botToken);
+    }
+
     /**
      * Валидация initData из Telegram MiniApp
      *
@@ -21,7 +25,7 @@ public class TelegramAuthValidator {
      * @param botToken полный токен бота от BotFather (ID:секрет)
      * @return true, если данные подлинные
      */
-    public static boolean validateInitData(String initData, String botToken) {
+    private static boolean validateInitData(String initData, String botToken) {
         log.debug("=== [TelegramAuthValidator] START VALIDATION ===");
 
         if (initData == null || initData.isBlank()) {
