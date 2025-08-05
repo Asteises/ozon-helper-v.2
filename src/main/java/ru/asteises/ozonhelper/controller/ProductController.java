@@ -1,18 +1,18 @@
 package ru.asteises.ozonhelper.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import ru.asteises.ozonhelper.model.ozon.ProductListResponse;
 import ru.asteises.ozonhelper.service.OzonProductService;
 
 import java.util.List;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/products")
 @RequiredArgsConstructor
+@RequestMapping("/api/product")
 public class ProductController {
 
     private final OzonProductService ozonProductService;
@@ -28,5 +28,16 @@ public class ProductController {
                 productIds == null ? List.of() : productIds,
                 visibility
         );
+    }
+
+    @ResponseBody
+    @GetMapping("/list/test")
+    public ResponseEntity<List<ProductListResponse.ProductItem>> getProductListTest() {
+        log.info("Try to get product list for user tg id");
+        return ResponseEntity.ok(ozonProductService.getProducts(
+                List.of(),
+                List.of(),
+                "ALL"
+        ));
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
+import ru.asteises.ozonhelper.model.CheckUserData;
 import ru.asteises.ozonhelper.model.RegisterUserData;
 import ru.asteises.ozonhelper.service.UserService;
 import ru.asteises.ozonhelper.validator.TelegramAuthValidator;
@@ -25,23 +26,13 @@ public class MiniAppController {
     private final UserService userService;
 
     @ResponseBody
-    @PostMapping("/verify")
-    public ResponseEntity<Boolean> verifyInitData(@RequestBody RegisterUserData registerUserData) {
-        log.info("Verify init data for user tg id: [ {} ]", registerUserData.getTelegramUserId());
-        if (!validateInitData(registerUserData.getTelegramInitData())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return ResponseEntity.ok(true);
-    }
-
-    @ResponseBody
     @PostMapping("/check")
-    public ResponseEntity<String> isUserExist(@RequestBody RegisterUserData registerUserData) {
-        log.info("Checking if user exists for user tg id: [ {} ]", registerUserData.getTelegramUserId());
-        if (!validateInitData(registerUserData.getTelegramInitData())) {
+    public ResponseEntity<String> isUserExist(@RequestBody CheckUserData checkUserData) {
+        log.info("Checking if user exists for user tg id: [ {} ]", checkUserData.getTelegramUserId());
+        if (!validateInitData(checkUserData.getTelegramInitData())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(HttpStatus.UNAUTHORIZED.getReasonPhrase());
         }
-        boolean userExist = userService.existByTelegramUserId(registerUserData.getTelegramUserId());
+        boolean userExist = userService.existByTelegramUserId(checkUserData.getTelegramUserId());
         if (userExist) {
             return ResponseEntity.ok(HttpStatus.OK.getReasonPhrase());
         }

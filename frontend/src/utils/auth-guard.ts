@@ -8,9 +8,14 @@ declare global {
 
 export async function verifyAndCheckUser(): Promise<'ok' | 'unauthorized' | 'not_registered'> {
     const tg = window.Telegram?.WebApp
+
+    console.log("Income Telegram WebApp: ", tg)
+
     if (!tg?.initDataUnsafe?.user) return 'unauthorized'
 
     const user = tg.initDataUnsafe.user
+
+    console.log("Income Telegram User: ", user)
 
     const requestPayload: CheckUserData = {
         telegramUserId: user.id,
@@ -23,6 +28,8 @@ export async function verifyAndCheckUser(): Promise<'ok' | 'unauthorized' | 'not
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(requestPayload)
         })
+
+        console.log("Server Response: ", response)
 
         if (response.status === 200) {
             return 'ok'               // пользователь зарегистрирован
