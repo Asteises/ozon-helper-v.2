@@ -43,7 +43,7 @@ const getData = async () => {
       //   body: JSON.stringify(requestPayload)
       // });
 
-      const response = await fetch('dev/bot/ozon/helper/api/product/list/test', {
+      const response = await fetch('/api/product/list/test', {
         method: 'GET',
         headers: {'Content-Type': 'application/json'},
       });

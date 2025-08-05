@@ -23,10 +23,10 @@ public class WebClientConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
 
-        registry.addViewController("/miniapp")
+        registry.addViewController("/dev/bot/ozon/helper")
                 .setViewName("forward:/miniapp/index.html");
 
-        registry.addViewController("/miniapp/{path:[^\\.]*}")
+        registry.addViewController("/dev/bot/ozon/helper/{path:[^\\.]*}")
                 .setViewName("forward:/miniapp/index.html");
     }
 }

@@ -23,7 +23,7 @@ export async function verifyAndCheckUser(): Promise<'ok' | 'unauthorized' | 'not
     }
 
     try {
-        const response = await fetch('/dev/bot/ozon/helper/check', {
+        const response = await fetch('/api/user/check', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(requestPayload)

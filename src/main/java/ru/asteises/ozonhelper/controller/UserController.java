@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.asteises.ozonhelper.model.CheckUserData;
 import ru.asteises.ozonhelper.model.RegisterUserData;
@@ -18,7 +19,8 @@ import ru.asteises.ozonhelper.validator.TelegramAuthValidator;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class MiniAppController {
+@RequestMapping("/api/user")
+public class UserController {
 
     @Value("${telegram.bot.token}")
     private String botToken;
@@ -41,7 +43,7 @@ public class MiniAppController {
 
     @ResponseBody
     @PostMapping("/save")
-    public ResponseEntity<Boolean> saveOzonData(@RequestBody RegisterUserData registerUserData) {
+    public ResponseEntity<Boolean> saveOrUpdateUser(@RequestBody RegisterUserData registerUserData) {
         log.debug("Registration data for user tg id: [ {} ]", registerUserData.getTelegramUserId());
         if (!TelegramAuthValidator.validate(registerUserData.getTelegramInitData(), botToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);

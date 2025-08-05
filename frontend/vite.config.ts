@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
 export default defineConfig({
-  base: '/dev/bot/ozon/helper/miniapp/',
+  base: '/dev/bot/ozon/helper/',
   plugins: [vue()],
   resolve: {
     alias: {
@@ -17,7 +17,7 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/dev/bot/ozon/helper/save': 'http://localhost:1212'
+      '/api': 'http://localhost:1212',
     }
   }
 })
