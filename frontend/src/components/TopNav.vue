@@ -1,5 +1,5 @@
 <template>
-  <nav v-if="ui.isNavVisible" class="top-nav">
+  <nav v-if="uiState.isNavVisible" class="top-nav">
     <!-- Левое меню (бургер) -->
     <div class="menu-left">
       <button class="burger-btn" @click="toggleBurgerMenu" aria-label="Открыть меню">
@@ -10,7 +10,7 @@
         </svg>
       </button>
       <transition name="slide-down">
-        <ul v-if="ui.isBurgerMenuOpen" class="dropdown-menu left">
+        <ul v-if="uiState.isBurgerMenuOpen" class="dropdown-menu left">
           <li @click="navigateTo('/start')">Начать работу</li>
           <li @click="navigateTo('/faq')">FAQ</li>
         </ul>
@@ -31,7 +31,7 @@
         </svg>
       </button>
       <transition name="slide-down">
-        <ul v-if="ui.isProfileDropdownOpen" class="dropdown-menu right">
+        <ul v-if="uiState.isProfileDropdownOpen" class="dropdown-menu right">
           <li @click="navigateTo('/profile')">Профиль</li>
           <li @click="logout">Выход</li>
         </ul>
@@ -46,25 +46,25 @@ import { useRouter } from 'vue-router'
 import { useUiStore } from '../store/ui-store'
 
 const router = useRouter()
-const ui = useUiStore()
+const uiState = useUiStore()
 
 // Методы для работы с Pinia
 const toggleBurgerMenu = () => {
-  ui.toggleBurgerMenu()
-  ui.closeProfileDropdown()
+  uiState.toggleBurgerMenu()
+  uiState.closeProfileDropdown()
 }
 
 const toggleProfileDropdown = () => {
-  ui.toggleProfileDropdown()
-  ui.closeBurgerMenu()
+  uiState.toggleProfileDropdown()
+  uiState.closeBurgerMenu()
 }
 
 // Закрытие при клике вне
 const closeMenusOnClickOutside = (e: MouseEvent) => {
   const target = e.target as HTMLElement
   if (!target.closest('.menu-left') && !target.closest('.menu-right')) {
-    ui.closeBurgerMenu()
-    ui.closeProfileDropdown()
+    uiState.closeBurgerMenu()
+    uiState.closeProfileDropdown()
   }
 }
 
@@ -73,8 +73,8 @@ onMounted(() => {
 
   // Автоматическое закрытие при смене роута
   router.afterEach(() => {
-    ui.closeBurgerMenu()
-    ui.closeProfileDropdown()
+    uiState.closeBurgerMenu()
+    uiState.closeProfileDropdown()
   })
 })
 
@@ -85,15 +85,15 @@ onBeforeUnmount(() => {
 // Навигация
 const navigateTo = (path: string) => {
   router.push(path)
-  ui.closeBurgerMenu()
-  ui.closeProfileDropdown()
+  uiState.closeBurgerMenu()
+  uiState.closeProfileDropdown()
 }
 
 // Выход
 const logout = () => {
   console.log('Выход пользователя')
   router.push('/login')
-  ui.closeProfileDropdown()
+  uiState.closeProfileDropdown()
 }
 </script>
 
