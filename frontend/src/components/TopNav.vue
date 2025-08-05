@@ -1,53 +1,99 @@
 <template>
-  <header class="top-nav">
-    <!-- Левая ссылка -->
-    <router-link to="/" class="menu-link">Menu</router-link>
-
-    <!-- Правая иконка профиля -->
-    <div class="profile-container" @click="toggleDropdown">
-      <svg xmlns="http://www.w3.org/2000/svg" class="profile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <circle cx="12" cy="7" r="4" />
-        <path d="M5.5 21a8.38 8.38 0 0 1 13 0" />
-      </svg>
-
-      <!-- Выпадающее меню -->
-      <div v-if="isProfileDropdownOpen" class="dropdown">
-        <router-link to="/profile" class="dropdown-item">Профиль</router-link>
-        <button class="dropdown-item" @click.stop="logout">Выйти</button>
-      </div>
+  <nav v-if="ui.isNavVisible" class="top-nav">
+    <!-- Левое меню (бургер) -->
+    <div class="menu-left">
+      <button class="burger-btn" @click="toggleBurgerMenu" aria-label="Открыть меню">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <transition name="slide-down">
+        <ul v-if="ui.isBurgerMenuOpen" class="dropdown-menu left">
+          <li @click="navigateTo('/start')">Начать работу</li>
+          <li @click="navigateTo('/faq')">FAQ</li>
+        </ul>
+      </transition>
     </div>
-  </header>
+
+    <!-- Заголовок -->
+    <div class="nav-title">
+      <slot></slot>
+    </div>
+
+    <!-- Правое меню (личный кабинет) -->
+    <div class="menu-right">
+      <button class="profile-btn" @click="toggleProfileDropdown" aria-label="Личный кабинет">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="7" r="4"></circle>
+          <path d="M5.5 21c1.5-3 4.5-5 6.5-5s5 2 6.5 5"></path>
+        </svg>
+      </button>
+      <transition name="slide-down">
+        <ul v-if="ui.isProfileDropdownOpen" class="dropdown-menu right">
+          <li @click="navigateTo('/profile')">Профиль</li>
+          <li @click="logout">Выход</li>
+        </ul>
+      </transition>
+    </div>
+  </nav>
 </template>
 
-<script setup>
-import { storeToRefs } from 'pinia'
-import { useUiStore } from '../store/ui-store'
+<script setup lang="ts">
 import { onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUiStore } from '../store/ui-store'
 
-const uiStore = useUiStore()
-const { isProfileDropdownOpen } = storeToRefs(uiStore)
+const router = useRouter()
+const ui = useUiStore()
 
-function toggleDropdown() {
-  uiStore.toggleProfileDropdown()
+// Методы для работы с Pinia
+const toggleBurgerMenu = () => {
+  ui.toggleBurgerMenu()
+  ui.closeProfileDropdown()
 }
 
-function handleClickOutside(event) {
-  const dropdown = document.querySelector('.profile-container')
-  if (dropdown && !dropdown.contains(event.target)) {
-    uiStore.closeProfileDropdown()
+const toggleProfileDropdown = () => {
+  ui.toggleProfileDropdown()
+  ui.closeBurgerMenu()
+}
+
+// Закрытие при клике вне
+const closeMenusOnClickOutside = (e: MouseEvent) => {
+  const target = e.target as HTMLElement
+  if (!target.closest('.menu-left') && !target.closest('.menu-right')) {
+    ui.closeBurgerMenu()
+    ui.closeProfileDropdown()
   }
 }
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
+  document.addEventListener('click', closeMenusOnClickOutside)
+
+  // Автоматическое закрытие при смене роута
+  router.afterEach(() => {
+    ui.closeBurgerMenu()
+    ui.closeProfileDropdown()
+  })
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('click', closeMenusOnClickOutside)
 })
 
-function logout() {
-  uiStore.closeProfileDropdown()
+// Навигация
+const navigateTo = (path: string) => {
+  router.push(path)
+  ui.closeBurgerMenu()
+  ui.closeProfileDropdown()
+}
+
+// Выход
+const logout = () => {
+  console.log('Выход пользователя')
+  router.push('/login')
+  ui.closeProfileDropdown()
 }
 </script>
 
@@ -57,62 +103,91 @@ function logout() {
   top: 0;
   left: 0;
   width: 100%;
-  height: 48px;
-  background-color: var(--tg-theme-bg-color, #1c1c1c);
+  height: 56px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
   z-index: 1000;
-  font-size: 1rem;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 
-.menu-link {
-  font-weight: 600;
-  color: var(--tg-theme-link-color, #3390ec);
-  text-decoration: none;
-}
-
-.menu-link:hover {
-  opacity: 0.8;
-}
-
-.profile-container {
-  position: relative;
-  cursor: pointer;
-}
-
-.profile-icon {
-  width: 24px;
-  height: 24px;
-  stroke: var(--tg-theme-text-color, #fff);
-}
-
-.dropdown {
-  position: absolute;
-  right: 0;
-  top: 40px;
-  background-color: var(--tg-theme-secondary-bg-color, #2a2a2a);
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  min-width: 140px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-.dropdown-item {
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  text-align: left;
-  color: var(--tg-theme-text-color, #fff);
+.burger-btn,
+.profile-btn {
   background: none;
   border: none;
+  font-size: 24px;
   cursor: pointer;
-  text-decoration: none;
+  padding: 6px 10px;
+  color: #2b2b2b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.dropdown-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+.burger-btn svg,
+.profile-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: #2b2b2b;
+}
+
+.nav-title {
+  flex: 1;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 56px;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  list-style: none;
+  padding: 5px 0;
+  margin: 0;
+  min-width: 150px;
+}
+
+.dropdown-menu.left {
+  left: 10px;
+}
+
+.dropdown-menu.right {
+  right: 10px;
+}
+
+.dropdown-menu li {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.dropdown-menu li:hover {
+  background: #f2f2f2;
+}
+
+/* Анимация slide-down */
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-down-enter-to,
+.slide-down-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
