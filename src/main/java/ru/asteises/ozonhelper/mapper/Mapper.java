@@ -4,10 +4,14 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.asteises.ozonhelper.enums.UserRole;
 import ru.asteises.ozonhelper.enums.UserStatus;
 import ru.asteises.ozonhelper.model.RegisterUserData;
-import ru.asteises.ozonhelper.model.UserDto;
+import ru.asteises.ozonhelper.model.entities.ProductEntity;
+import ru.asteises.ozonhelper.model.entities.ProductQuantEntity;
 import ru.asteises.ozonhelper.model.entities.UserEntity;
+import ru.asteises.ozonhelper.model.entities.UserProductCatalogEntity;
+import ru.asteises.ozonhelper.model.ozon.ProductListResponse;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Mapper {
 
@@ -43,8 +47,35 @@ public class Mapper {
         if (registerUserData.getLastName() != null) userEntity.setLastName(registerUserData.getLastName());
     }
 
-    public static UserDto mapUser(UserEntity user) {
-        return UserDto.builder()
+    public static UserProductCatalogEntity mapUserProductCatalog(UserEntity userEntity) {
+        return UserProductCatalogEntity.builder()
+                .user(userEntity)
                 .build();
+    }
+
+    public static ProductEntity mapProductEntity(ProductListResponse.ProductItem item, UserProductCatalogEntity catalog) {
+        ProductEntity product = ProductEntity.builder()
+                .catalog(catalog)
+                .productId(item.getProductId())
+                .offerId(item.getOfferId())
+                .hasFboStocks(item.getHasFboStocks())
+                .hasFbsStocks(item.getHasFbsStocks())
+                .archived(item.getArchived())
+                .isDiscounted(item.getIsDiscounted())
+                .lastSyncedAt(LocalDateTime.now())
+                .build();
+
+        if (item.getQuants() != null) {
+            List<ProductQuantEntity> quants = item.getQuants().stream()
+                    .map(q -> ProductQuantEntity.builder()
+                            .product(product)
+                            .quantCode(q.getQuantCode())
+                            .quantSize(q.getQuantSize())
+                            .build())
+                    .toList();
+            product.setQuants(quants);
+        }
+
+        return product;
     }
 }

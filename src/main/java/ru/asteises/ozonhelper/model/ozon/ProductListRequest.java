@@ -1,5 +1,6 @@
 package ru.asteises.ozonhelper.model.ozon;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,14 +10,17 @@ import java.util.List;
 @Builder
 public class ProductListRequest {
     private Filter filter;
-    private String last_id;
-    private int limit;
+    @JsonProperty("last_id")
+    private String lastId;
+    private Integer limit;
 
     @Data
     @Builder
     public static class Filter {
-        private List<String> offer_id;
-        private List<String> product_id;
+        @JsonProperty("offer_id")
+        private List<String> offerId;
+        @JsonProperty("product_id")
+        private List<Long> productId;
         private String visibility; // "ALL", "VISIBLE", "INVISIBLE"
     }
 }

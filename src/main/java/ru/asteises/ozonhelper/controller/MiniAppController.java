@@ -29,7 +29,7 @@ public class MiniAppController {
     @PostMapping("/check")
     public ResponseEntity<String> isUserExist(@RequestBody CheckUserData checkUserData) {
         log.info("Checking if user exists for user tg id: [ {} ]", checkUserData.getTelegramUserId());
-        if (!validateInitData(checkUserData.getTelegramInitData())) {
+        if (!TelegramAuthValidator.validateInitData(checkUserData.getTelegramInitData(), botToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(HttpStatus.UNAUTHORIZED.getReasonPhrase());
         }
         boolean userExist = userService.existByTelegramUserId(checkUserData.getTelegramUserId());
@@ -41,16 +41,12 @@ public class MiniAppController {
 
     @ResponseBody
     @PostMapping("/save")
-    public ResponseEntity<Boolean> saveOzonData(@RequestBody RegisterUserData registerUserData) {
+    public ResponseEntity<Boolean> saveOrUpdateUser(@RequestBody RegisterUserData registerUserData) {
         log.debug("Registration data for user tg id: [ {} ]", registerUserData.getTelegramUserId());
-        if (!validateInitData(registerUserData.getTelegramInitData())) {
+        if (!TelegramAuthValidator.validateInitData(registerUserData.getTelegramInitData(), botToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
         }
         Boolean registrationSuccess = userService.saveOrUpdateUser(registerUserData);
         return ResponseEntity.ok(registrationSuccess);
-    }
-
-    private Boolean validateInitData(String initData) {
-        return TelegramAuthValidator.validateInitData(initData, botToken);
     }
 }

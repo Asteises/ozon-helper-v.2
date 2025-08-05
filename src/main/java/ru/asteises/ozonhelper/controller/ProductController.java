@@ -2,12 +2,19 @@ package ru.asteises.ozonhelper.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.asteises.ozonhelper.model.ozon.ProductListResponse;
-import ru.asteises.ozonhelper.service.OzonProductService;
+import ru.asteises.ozonhelper.model.CheckUserData;
+import ru.asteises.ozonhelper.model.entities.UserEntity;
+import ru.asteises.ozonhelper.model.entities.UserProductCatalogEntity;
+import ru.asteises.ozonhelper.repository.UserRepository;
+import ru.asteises.ozonhelper.service.ProductSyncService;
+import ru.asteises.ozonhelper.service.UserProductCatalogService;
+import ru.asteises.ozonhelper.validator.TelegramAuthValidator;
 
-import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -15,29 +22,34 @@ import java.util.List;
 @RequestMapping("/api/product")
 public class ProductController {
 
-    private final OzonProductService ozonProductService;
+    @Value("${telegram.bot.token}")
+    private String botToken;
 
-    @GetMapping
-    public List<ProductListResponse.ProductItem> getAllProducts(
-            @RequestParam(required = false) List<String> offerIds,
-            @RequestParam(required = false) List<String> productIds,
-            @RequestParam(defaultValue = "ALL") String visibility
-    ) {
-        return ozonProductService.getProducts(
-                offerIds == null ? List.of() : offerIds,
-                productIds == null ? List.of() : productIds,
-                visibility
-        );
+    private final ProductSyncService productSyncService;
+    private final UserProductCatalogService userProductCatalogService;
+    private final UserRepository userRepository;
+
+    @PostMapping("/sync/list")
+    public ResponseEntity<String> startSync(@RequestBody CheckUserData checkUserData) {
+        if (!TelegramAuthValidator.validateInitData(checkUserData.getTelegramInitData(), botToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        }
+        UserEntity user = userRepository.findByTelegramUserId(checkUserData.getTelegramUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+        productSyncService.syncUserProductsAsync(user);
+
+        return ResponseEntity.accepted().body("Синхронизация запущена");
     }
 
-    @ResponseBody
-    @GetMapping("/list/test")
-    public ResponseEntity<List<ProductListResponse.ProductItem>> getProductListTest() {
-        log.info("Try to get product list for user tg id");
-        return ResponseEntity.ok(ozonProductService.getProducts(
-                List.of(),
-                List.of(),
-                "ALL"
+    @GetMapping("/status/{telegramUserId}")
+    public ResponseEntity<Map<String, Object>> getSyncStatus(@PathVariable Long telegramUserId) {
+        UserProductCatalogEntity catalog = userProductCatalogService
+                .getByTelegramUserId(telegramUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Каталог не найден"));
+        return ResponseEntity.ok(Map.of(
+                "status", catalog.getStatus(),
+                "progress", catalog.getProgress(),
+                "lastSyncedAt", catalog.getLastSyncedAt()
         ));
     }
 }

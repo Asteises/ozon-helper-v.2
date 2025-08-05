@@ -23,7 +23,7 @@ public class ProductListResponse {
     @Data
     public static class ProductItem {
         @JsonProperty("product_id")
-        private Integer productId;
+        private Long productId;
         @JsonProperty("offer_id")
         private String offerId;
         @JsonProperty("has_fbo_stocks")

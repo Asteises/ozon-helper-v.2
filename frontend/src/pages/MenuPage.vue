@@ -36,15 +36,11 @@ const getData = async () => {
         telegramUserId: user.id,
         telegramInitData: user.initData
       }
-      // const response = await fetch('dev/bot/ozon/helper/api/product/list', {
-      //   method: 'POST',
-      //   headers: {'Content-Type': 'application/json'},
-      //   body: JSON.stringify(requestPayload)
-      // });
 
-      const response = await fetch('/dev/bot/ozon/helper/api/product/list/test', {
-        method: 'GET',
+      const response = await fetch('/dev/bot/ozon/helper/api/product/sync/list', {
+        method: 'POST',
         headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(requestPayload)
       });
 
       if (!response.ok) {
