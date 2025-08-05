@@ -20,21 +20,21 @@ public class UserService {
     private final CryptoService cryptoService;
 
     @Transactional
-    public String saveOrUpdateUser(RegisterUserData userData) {
+    public Boolean saveOrUpdateUser(RegisterUserData userData) {
         Long userTgId = userData.getTelegramUserId();
         try {
             UserEntity existingUser = getUserOrNull(userTgId);
             if (existingUser == null) {
                 saveNewUser(userData, userTgId);
-                return "Поздравляем! Вы зарегистрированы.";
+                return true;
             }
             if (!existingUser.hasAdditionalData()) {
                 updateExistUser(userData, userTgId, existingUser);
             }
-            return "Ваши данные успешно обновлены.";
+            return true;
         } catch (Exception e) {
             log.error("Something went wrong in user registration process: [ {} ]", e.getMessage(), e);
-            return "Что-то пошло не так во время регистрации нового пользователя. Пожалуйста попробуйте позже или обратитесь к администратору.";
+            return false;
         }
     }
 
@@ -72,5 +72,15 @@ public class UserService {
         }
         log.debug("Can't found UserEntity for user tg id: [ {} ]", tgUserId);
         return null;
+    }
+
+    public boolean existByTelegramUserId(Long telegramUserId) {
+        Optional<UserEntity> existingUser = getOptionalUser(telegramUserId);
+        if (existingUser.isPresent()) {
+            log.debug("Found existing user id: [ {} ] with telegram user id: [ {} ]", existingUser.get().getId(), existingUser.get().getId());
+            return true;
+        }
+        log.debug("Can't found existing user id: [ {} ]", telegramUserId);
+        return false;
     }
 }

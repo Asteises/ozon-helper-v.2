@@ -21,8 +21,7 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import {useRouter} from 'vue-router'
-import {useUserStore} from '../store/user'
-import type {RegisterUserData} from '../types/tg-user.ts'
+import type {RegisterUserData} from "../types/tg-user.ts";
 
 declare global {
   interface Window {
@@ -31,61 +30,46 @@ declare global {
 }
 
 const tg = window.Telegram?.WebApp;
-const userStore = useUserStore()
-let user: any;
+const router = useRouter();
 
-if (tg) {
-  tg?.ready();
-
-  if (tg.initDataUnsafe?.user) {
-    user = tg?.initDataUnsafe?.user;
-    userStore.setTelegramUser(user)
-  } else {
-    console.error('Нет данных пользователя из Telegram WebApp');
-  }
-} else {
-  console.error('Telegram WebApp API не найден');
-}
-
-const clientId = ref<string>('')
-const apiKey = ref<string>('')
-const message = ref<string>('')
-const loading = ref<boolean>(false)
-
-const router = useRouter()
+const clientId = ref('')
+const apiKey = ref('')
+const message = ref('')
+const loading = ref(false)
 
 const errors = ref<{ clientId?: string; apiKey?: string }>({})
 
 const validate = (): boolean => {
   errors.value = {}
 
-  if (!/^\d{6,}$/.test(clientId.value)) {
-    errors.value.clientId = 'Client ID должен содержать только цифры и минимум 6 символов'
+  if (!clientId.value) {
+    errors.value.clientId = 'Введите Client ID'
+  } else if (!/^[a-zA-Z0-9-]+$/.test(clientId.value)) {
+    errors.value.clientId = 'Некорректный формат Client ID'
   }
-
-  if (!apiKey.value.trim()) {
-    errors.value.apiKey = 'API Key не может быть пустым'
+  if (!apiKey.value) {
+    errors.value.apiKey = 'Введите API Key'
+  } else if (apiKey.value.length < 32) {
+    errors.value.apiKey = 'Некорректный API Key'
   }
 
   return Object.keys(errors.value).length === 0
 }
 
 const saveData = async () => {
-
-  if (!validate()) {
-    return
-  }
+  if (!validate()) return
 
   loading.value = true
   message.value = ''
 
   try {
-
-    if (!user) {
-      console.error('Пользователь Telegram не найден');
+    if (!tg?.initDataUnsafe?.user) {
+      throw new Error('Пользователь Telegram не найден')
     }
 
-    const registerData: RegisterUserData = {
+    const user = tg?.initDataUnsafe?.user
+
+    const registrationUserData: RegisterUserData = {
       telegramUserId: user.id,
       username: user.username,
       firstName: user.firstName,
@@ -97,20 +81,14 @@ const saveData = async () => {
       telegramInitData: tg?.initData
     }
 
-    console.log("registerData: ", registerData)
-
     const response = await fetch('/dev/bot/ozon/helper/save', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(registerData)
+      body: JSON.stringify(registrationUserData)
     })
 
     if (!response.ok) throw new Error('Ошибка при сохранении данных')
 
-    const result = await response.text()
-    console.log('result text: ', result)
-
-    userStore.setCredentials(clientId.value, apiKey.value)
     await router.push('/menu')
   } catch (err: any) {
     message.value = err.message
@@ -118,6 +96,7 @@ const saveData = async () => {
     loading.value = false
   }
 }
+
 </script>
 
 <style scoped>

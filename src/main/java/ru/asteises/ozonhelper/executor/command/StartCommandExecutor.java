@@ -5,10 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.asteises.ozonhelper.enums.CommandType;
+import ru.asteises.ozonhelper.service.AttachmentMenuService;
 import ru.asteises.ozonhelper.service.MessageService;
-import ru.asteises.ozonhelper.utils.KeyboardUtils;
 
 @Slf4j
 @Component
@@ -19,6 +18,7 @@ public class StartCommandExecutor implements CommandExecutor {
     private String miniAppUrl;
 
     private final MessageService messageService;
+    private final AttachmentMenuService attachmentMenuService;
 
     @Override
     public CommandType getType() {
@@ -30,7 +30,8 @@ public class StartCommandExecutor implements CommandExecutor {
         log.info("Executing start command");
         String webAppFullUrl = String.format("%s/miniapp", miniAppUrl);
         log.info("Miniapp URL: {}", webAppFullUrl);
-        InlineKeyboardMarkup markup = KeyboardUtils.getSimpleInlineKeyboard("Зарегистрироваться", webAppFullUrl);
-        messageService.sendMessage(update.getMessage().getChatId(), "Начните работу с нажатия кнопки:", markup);
+//        InlineKeyboardMarkup markup = KeyboardUtils.getSimpleInlineKeyboard("Зарегистрироваться", webAppFullUrl);
+//        messageService.sendMessage(update.getMessage().getChatId(), "Начните работу с нажатия кнопки:", markup);
+        attachmentMenuService.createAndSendWebbAppAttachmentMenu(update.getMessage().getChatId(), miniAppUrl);
     }
 }

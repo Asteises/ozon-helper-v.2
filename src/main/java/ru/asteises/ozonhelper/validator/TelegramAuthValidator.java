@@ -21,10 +21,8 @@ public class TelegramAuthValidator {
      * @param botToken полный токен бота от BotFather (ID:секрет)
      * @return true, если данные подлинные
      */
-    public static boolean validate(String initData, String botToken) {
+    public static boolean validateInitData(String initData, String botToken) {
         log.debug("=== [TelegramAuthValidator] START VALIDATION ===");
-
-        log.debug("Bot token: {}", botToken);
 
         if (initData == null || initData.isBlank()) {
             log.warn("InitData is NULL or blank!");
@@ -32,6 +30,8 @@ public class TelegramAuthValidator {
         }
 
         /*
+        EXAMPLE:
+
         telegramInitData=
         query_id=AAG8OosQAAAAALw6ixDVqQDA&
         user=%7B%22id%22%3A277559996%2C%22
@@ -45,21 +45,25 @@ public class TelegramAuthValidator {
         auth_date=1754308649&signature=OCpDNB9lozG1Gkem1idDhPTvHFffOz8VJR4IAyHzJ7hXne3V3uwu9FhOfkcSQ35iyljTTcaSSsf1f_C1NkofDA&
         hash=7951d1acfc4ed0309f988a9e20ce0bd7de6f03fb7019f0a93aefe19e12fc3a67
          */
-        log.debug("Raw initData: {}", initData);
+
+//        log.debug("Raw initData: {}", initData);
+
         Map<String, String> params = Arrays.stream(initData.split("&"))
                 .map(s -> s.split("=", 2))
                 .collect(Collectors.toMap(
                         arr -> arr[0],
                         arr -> URLDecoder.decode(arr[1], StandardCharsets.UTF_8)
                 ));
-        log.debug("Parsed params: {}", params);
+
+//        log.debug("Parsed params: {}", params);
 
         String dataCheckString = params.entrySet().stream()
                 .filter(e -> !"hash".equals(e.getKey()))
                 .sorted(Map.Entry.comparingByKey())
                 .map(e -> e.getKey() + "=" + e.getValue())
                 .collect(Collectors.joining("\n"));
-        log.debug("DataCheckString: {}", dataCheckString);
+
+//        log.debug("DataCheckString: {}", dataCheckString);
 
         try {
             byte[] secretKey = hmacSha256("WebAppData".getBytes(StandardCharsets.UTF_8), botToken);
@@ -91,7 +95,6 @@ public class TelegramAuthValidator {
         for (byte b : bytes) {
             sb.append(String.format("%02x", b));
         }
-        log.debug("bytesToHex: {}", sb.toString());
         return sb.toString();
     }
 

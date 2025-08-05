@@ -1,10 +1,11 @@
 <template>
-  <div class="container">
-    <h2>Отчет по прибыли</h2>
-    <p>Страница в разработке</p>
+  <div>
+    <TopNav />
+    <h1>Добро пожаловать в Ozon Helper</h1>
+    <p>Выберите действие в меню</p>
   </div>
 </template>
 
 <script setup lang="ts">
-// Временно пусто
+import TopNav from '../components/TopNav.vue'
 </script>

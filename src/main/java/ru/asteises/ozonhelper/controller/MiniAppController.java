@@ -25,14 +25,41 @@ public class MiniAppController {
     private final UserService userService;
 
     @ResponseBody
-    @PostMapping("/save")
-    public ResponseEntity<String> saveOzonData(@RequestBody RegisterUserData registerUserData) {
-        log.debug("Registration data for user tg id: [ {} ]", registerUserData.getTelegramUserId());
-        if (!TelegramAuthValidator.validate(registerUserData.getTelegramInitData(), botToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid hash");
+    @PostMapping("/verify")
+    public ResponseEntity<Boolean> verifyInitData(@RequestBody RegisterUserData registerUserData) {
+        log.info("Verify init data for user tg id: [ {} ]", registerUserData.getTelegramUserId());
+        if (!validateInitData(registerUserData.getTelegramInitData())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        String registrationMessage = userService.saveOrUpdateUser(registerUserData);
-        return ResponseEntity.ok(registrationMessage);
+        return ResponseEntity.ok(true);
     }
 
+    @ResponseBody
+    @PostMapping("/check")
+    public ResponseEntity<String> isUserExist(@RequestBody RegisterUserData registerUserData) {
+        log.info("Checking if user exists for user tg id: [ {} ]", registerUserData.getTelegramUserId());
+        if (!validateInitData(registerUserData.getTelegramInitData())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+        }
+        boolean userExist = userService.existByTelegramUserId(registerUserData.getTelegramUserId());
+        if (userExist) {
+            return ResponseEntity.ok(HttpStatus.OK.getReasonPhrase());
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(HttpStatus.NOT_FOUND.getReasonPhrase());
+    }
+
+    @ResponseBody
+    @PostMapping("/save")
+    public ResponseEntity<Boolean> saveOzonData(@RequestBody RegisterUserData registerUserData) {
+        log.debug("Registration data for user tg id: [ {} ]", registerUserData.getTelegramUserId());
+        if (!validateInitData(registerUserData.getTelegramInitData())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+        }
+        Boolean registrationSuccess = userService.saveOrUpdateUser(registerUserData);
+        return ResponseEntity.ok(registrationSuccess);
+    }
+
+    private Boolean validateInitData(String initData) {
+        return TelegramAuthValidator.validateInitData(initData, botToken);
+    }
 }
