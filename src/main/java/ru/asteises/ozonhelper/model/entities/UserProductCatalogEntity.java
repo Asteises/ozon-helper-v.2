@@ -37,7 +37,7 @@ public class UserProductCatalogEntity {
     private CatalogStatus status;
 
     @Column(name = "progress")
-    private Integer progress = 0;
+    private Integer progress;
 
     @Column(name = "last_processed_id")
     private String lastProcessedId;
