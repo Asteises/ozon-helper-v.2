@@ -19,6 +19,7 @@ public class OzonProductService {
     private final WebClient ozonWebClient;
 
     private static final String PRODUCT_LIST_URL = "/v3/product/list";
+    private static final Integer LIMIT = 1000;
 
     /**
      * Универсальный метод: если offerIds или productIds пустые — вернёт все товары
@@ -39,7 +40,7 @@ public class OzonProductService {
                             .visibility(visibility)
                             .build())
                     .last_id(lastId)
-                    .limit(1000) // максимум по API
+                    .limit(LIMIT) // максимум по API
                     .build();
 
             ProductListResponse response = ozonWebClient.post()
@@ -53,14 +54,18 @@ public class OzonProductService {
 
             log.info("Response from Ozon: {}", response);
 
-            if (response == null || response.getItems() == null) {
+            if (response == null || response.getResult() == null) {
                 log.debug("No products found");
                 break;
             }
 
-            result.addAll(response.getItems());
-            log.debug("Products found: [ {} ]", response.getItems().size());
-            lastId = response.getLast_id();
+            ProductListResponse.ProductListResult respResult = response.getResult();
+            log.debug("Products on page found: [ {} ]", respResult.getItems().size());
+
+            result.addAll(respResult.getItems());
+            log.debug("Total products found: [ {} ]", result.size());
+
+            lastId = respResult.getLastId();
 
         } while (lastId != null && !lastId.isEmpty());
 
