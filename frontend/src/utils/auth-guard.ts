@@ -30,7 +30,7 @@ export async function verifyAndCheckUser(): Promise<void> {
     }
 
     try {
-        const response = await fetch('/dev/bot/ozon/helper/check', {
+        const response = await fetch('/api/user/check', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(requestPayload)

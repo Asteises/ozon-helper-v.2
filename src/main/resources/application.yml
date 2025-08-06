@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /dev/bot/ozon/helper
+    context-path: /api
   port: 1212
 
 logging:
@@ -11,8 +11,6 @@ logging:
     name: /app/logs/app.log
 
 management:
-  server:
-    base-path: /
   endpoints:
     web:
       exposure:
@@ -22,7 +20,7 @@ telegram:
   bot:
     token: ${TELEGRAM_BOT_TOKEN}
   miniapp:
-    url: https://asteises.ru/dev/bot/ozon/helper
+    url: https://asteises.ru/miniapp/
 
 ozon:
   api:
@@ -46,6 +44,9 @@ spring:
     banner-mode: log
   messages:
     encoding: UTF-8
+  web:
+    resources:
+      static-locations: classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ozon-helper-db}
     username: ${DB_USER:postgres}

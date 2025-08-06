@@ -33,10 +33,10 @@ public class ProductController {
         return ResponseEntity.accepted().body("Синхронизация запущена");
     }
 
-    @GetMapping("/status/{telegramUserId}")
-    public ResponseEntity<Map<String, Object>> getSyncStatus(@PathVariable Long telegramUserId) {
+    @GetMapping("/sync/status")
+    public ResponseEntity<Map<String, Object>> getSyncStatus(@RequestBody CheckUserData checkUserData) {
         UserProductCatalogEntity catalog = userProductCatalogService
-                .getByTelegramUserId(telegramUserId)
+                .getByTelegramUserId(checkUserData.getTelegramUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Каталог не найден"));
         return ResponseEntity.ok(Map.of(
                 "status", catalog.getStatus(),

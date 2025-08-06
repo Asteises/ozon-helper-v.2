@@ -37,7 +37,7 @@ const getData = async () => {
         telegramInitData: user.initData
       }
 
-      const response = await fetch('/dev/bot/ozon/helper/api/product/sync/list', {
+      const response = await fetch('/api/product/sync/list', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(requestPayload)
