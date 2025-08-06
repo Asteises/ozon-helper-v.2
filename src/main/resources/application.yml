@@ -1,6 +1,4 @@
 server:
-  servlet:
-    context-path: /api
   port: 1212
 
 logging:
