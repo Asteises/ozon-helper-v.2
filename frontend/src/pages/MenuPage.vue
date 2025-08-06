@@ -46,7 +46,7 @@ const getData = async () => {
       if (!response.ok) {
         console.log('Ошибка при получении списка товаров')
       } else {
-        console.log('Income product list: ', response.json())
+        console.log('Response 200 text: ', response.text())
       }
     }
   } catch (error) {

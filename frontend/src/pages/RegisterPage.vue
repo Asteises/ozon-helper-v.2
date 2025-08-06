@@ -45,12 +45,12 @@ const validate = (): boolean => {
   if (!clientId.value) {
     errors.value.clientId = 'Введите Client ID'
   } else if (!/^[a-zA-Z0-9-]+$/.test(clientId.value)) {
-    errors.value.clientId = 'Некорректный формат Client ID'
+    errors.value.clientId = 'Client ID должен содержать только цифры и латинские буквы.'
   }
   if (!apiKey.value) {
     errors.value.apiKey = 'Введите API Key'
   } else if (apiKey.value.length < 32) {
-    errors.value.apiKey = 'Некорректный API Key'
+    errors.value.apiKey = 'API Key должен быть не менее 32 символов.'
   }
 
   return Object.keys(errors.value).length === 0
