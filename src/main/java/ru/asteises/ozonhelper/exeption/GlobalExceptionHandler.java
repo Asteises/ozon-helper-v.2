@@ -18,6 +18,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {
         log.error("Unexpected error: {}", ex.getMessage(), ex);
-        return ResponseEntity.ok("Unexpected error occurred");
+        return ResponseEntity.ok("Unexpected error occurred - see server logs for details");
     }
 }

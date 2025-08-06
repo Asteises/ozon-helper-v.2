@@ -38,8 +38,8 @@ router.beforeEach(async (to) => {
     // Разрешаем доступ к ErrorPage
     if (to.path === '/error') return true
 
-// Если идём на /menu — выполняем проверку
-    if (to.path === '/menu' && !authStore.verified) {
+    // Если идём на /menu — выполняем проверку
+    if (to.path === '/menu') {
         await verifyAndCheckUser()
 
         // Если не прошёл верификацию — отправляем на /error
