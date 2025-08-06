@@ -28,7 +28,7 @@ public class StartCommandExecutor implements CommandExecutor {
     @Override
     public void execute(Update update) {
         log.info("Executing start command");
-        String webAppFullUrl = String.format("%s/miniapp", miniAppUrl);
+        String webAppFullUrl = String.format(miniAppUrl);
         log.info("Miniapp URL: {}", webAppFullUrl);
 //        InlineKeyboardMarkup markup = KeyboardUtils.getSimpleInlineKeyboard("Зарегистрироваться", webAppFullUrl);
 //        messageService.sendMessage(update.getMessage().getChatId(), "Начните работу с нажатия кнопки:", markup);
