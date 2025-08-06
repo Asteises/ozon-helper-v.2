@@ -1,6 +1,7 @@
 package ru.asteises.ozonhelper.mapper;
 
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.asteises.ozonhelper.enums.CatalogStatus;
 import ru.asteises.ozonhelper.enums.UserRole;
 import ru.asteises.ozonhelper.enums.UserStatus;
 import ru.asteises.ozonhelper.model.RegisterUserData;
@@ -47,9 +48,14 @@ public class Mapper {
         if (registerUserData.getLastName() != null) userEntity.setLastName(registerUserData.getLastName());
     }
 
-    public static UserProductCatalogEntity mapUserProductCatalog(UserEntity userEntity) {
+    /**
+     * Использовать метод только для первого создания сущности!
+     */
+    public static UserProductCatalogEntity initMapUserProductCatalog(UserEntity userEntity) {
         return UserProductCatalogEntity.builder()
                 .user(userEntity)
+                .totalProducts(0)
+                .status(CatalogStatus.READY)
                 .build();
     }
 

@@ -3,6 +3,7 @@ package ru.asteises.ozonhelper.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.asteises.ozonhelper.mapper.Mapper;
 import ru.asteises.ozonhelper.model.entities.UserEntity;
 import ru.asteises.ozonhelper.model.entities.UserProductCatalogEntity;
@@ -17,6 +18,7 @@ public class UserProductCatalogService {
 
     private final UserProductCatalogRepository repository;
 
+    @Transactional
     public void save(UserProductCatalogEntity catalogEntity) {
         log.info("Save catalog for user id: [ {} ]", catalogEntity.getId());
         repository.save(catalogEntity);
@@ -30,15 +32,23 @@ public class UserProductCatalogService {
         return repository.findByUser_TelegramUserId(telegramUserId);
     }
 
+    @Transactional
+    public Optional<UserProductCatalogEntity> getByUserIdWithProductsAndQuants(UserEntity userEntity) {
+        return repository.findByUserIdWithProductsAndQuants(userEntity.getId());
+    }
+
+    @Transactional
     public UserProductCatalogEntity getOrCreateCatalog(UserEntity userEntity) {
         log.info("Get or create catalog for user id: [ {} ]", userEntity.getId());
-        Optional<UserProductCatalogEntity> optionalEntity = getByUserId(userEntity);
+        Optional<UserProductCatalogEntity> optionalEntity = getByUserIdWithProductsAndQuants(userEntity);
+        // Если каталог для пользователя уже существует
         if (optionalEntity.isPresent()) {
             log.info("User catalog already exists with id: [ {} ]", userEntity.getId());
             return optionalEntity.get();
         }
+        // Иначе, создаем новый каталог
         log.info("User catalog created for user id: [ {} ]", userEntity.getId());
-        UserProductCatalogEntity catalogEntity = Mapper.mapUserProductCatalog(userEntity);
+        UserProductCatalogEntity catalogEntity = Mapper.initMapUserProductCatalog(userEntity);
         return repository.save(catalogEntity);
     }
 }

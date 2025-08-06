@@ -26,7 +26,6 @@ public class ProductSyncService {
     private final ProductRepository productRepository;
 
     @Async("taskExecutor")
-    @Transactional
     public void syncUserProductsAsync(UserEntity userEntity) {
         syncUserProducts(userEntity);
     }
@@ -70,8 +69,11 @@ public class ProductSyncService {
 
                 // Если это первый батч — очищаем старые товары
                 if (firstBatch) {
-                    productRepository.deleteAll(catalog.getProducts());
-                    log.debug("Удалили все старые товары после первой итерации");
+                    // Очищаем, если есть, что очищать
+                    if (!catalog.getProducts().isEmpty()) {
+                        productRepository.deleteAll(catalog.getProducts());
+                        log.debug("Удалили все старые товары после первой итерации");
+                    }
                     firstBatch = false;
                 }
 
