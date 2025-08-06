@@ -25,6 +25,7 @@ public class ProductController {
 
     @PostMapping("/sync/list")
     public ResponseEntity<String> startSync(@RequestBody CheckUserData checkUserData) {
+        log.info("Start sync product with init data: {}", checkUserData);
         UserEntity user = userRepository.findByTelegramUserId(checkUserData.getTelegramUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
         productSyncService.syncUserProductsAsync(user);

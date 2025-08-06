@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.asteises.ozonhelper.mapper.Mapper;
-import ru.asteises.ozonhelper.model.entities.ProductEntity;
 import ru.asteises.ozonhelper.model.entities.UserEntity;
 import ru.asteises.ozonhelper.model.entities.UserProductCatalogEntity;
 import ru.asteises.ozonhelper.repository.UserProductCatalogRepository;

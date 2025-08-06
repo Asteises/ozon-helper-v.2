@@ -1,4 +1,5 @@
 import type {CheckUserData} from '../types/tg-user'
+import {useAuthStore} from "../store/auth-store";
 
 declare global {
     interface Window {
@@ -6,12 +7,18 @@ declare global {
     }
 }
 
-export async function verifyAndCheckUser(): Promise<'ok' | 'unauthorized' | 'not_registered'> {
+export async function verifyAndCheckUser(): Promise<void> {
+
+    const authStore = useAuthStore()
     const tg = window.Telegram?.WebApp
 
     console.log("Income Telegram WebApp: ", tg)
 
-    if (!tg?.initDataUnsafe?.user) return 'unauthorized'
+    if (!tg?.initDataUnsafe?.user) {
+        console.log("Пользователь не прошел верификацию")
+        authStore.reset()
+        return
+    }
 
     const user = tg.initDataUnsafe.user
 
@@ -31,17 +38,19 @@ export async function verifyAndCheckUser(): Promise<'ok' | 'unauthorized' | 'not
 
         console.log("Server Response: ", response)
 
-        if (response.status === 200) {
-            return 'ok'               // пользователь зарегистрирован
-        } else if (response.status === 404) {
-            return 'not_registered'   // пользователь не найден
-        } else if (response.status === 401) {
-            return 'unauthorized'     // ошибка валидации initData
+        if (response.status === 200) { // пользователь провалидирован и зарегистрирован
+            // Пользователь найден в БД
+            authStore.setVerified(true)
+            authStore.setAuthorized()
+        } else if (response.status === 404) { // пользователь провалидирован, но не найден в БД
+            authStore.setVerified(true)
+            authStore.setUnauthorized()
         } else {
-            return 'unauthorized'     // fallback на всякий случай
+            // Ошибка валидации initData
+            authStore.reset()
         }
     } catch (err) {
         console.error('Ошибка запроса /check:', err)
-        return 'unauthorized'
+        authStore.reset()
     }
 }

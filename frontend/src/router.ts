@@ -6,6 +6,7 @@ import MinPricePage from './pages/MinPricePage.vue'
 import ProfitReportPage from './pages/ProfitReportPage.vue'
 import ErrorPage from "./components/ErrorPage.vue";
 import {verifyAndCheckUser} from "./utils/auth-guard";
+import {useAuthStore} from './store/auth-store'
 
 const routes: RouteRecordRaw[] = [
 
@@ -26,8 +27,7 @@ const router = createRouter({
 
 // Guard
 router.beforeEach(async (to) => {
-    // Разрешаем ErrorPage и регистрацию без проверки
-    if (to.path === '/error' || to.path === '/register') return true
+    const authStore = useAuthStore()
 
     // Пропуск guard при локальной разработке
     if (import.meta.env.DEV) {
@@ -35,12 +35,31 @@ router.beforeEach(async (to) => {
         return true
     }
 
-    // В продакшене проверяем через /check
-    console.log('Try to verify and check user...')
-    const result = await verifyAndCheckUser()
+    // Разрешаем доступ к ErrorPage
+    if (to.path === '/error') return true
 
-    if (result === 'unauthorized') return '/error'
-    if (result === 'not_registered') return '/register'
+// Если идём на /menu — выполняем проверку
+    if (to.path === '/menu' && !authStore.verified) {
+        await verifyAndCheckUser()
+
+        // Если не прошёл верификацию — отправляем на /error
+        if (!authStore.verified) return '/error'
+
+        // Если верифицирован, но не зарегистрирован — перенаправляем на регистрацию
+        if (authStore.unauthorized) return '/register'
+
+        // Если верифицирован и зарегистрирован — остаёмся на /menu
+        return true
+    }
+
+    if (!authStore.verified) return '/error'
+
+    // - если unauthorized (нет в БД) — доступна только /register
+    if (authStore.unauthorized && to.path !== '/register') {
+        return '/register'
+    }
+
+    // Всё ок
     return true
 })
 

@@ -43,9 +43,6 @@ public class MiniAppController {
     @PostMapping("/save")
     public ResponseEntity<Boolean> saveOrUpdateUser(@RequestBody RegisterUserData registerUserData) {
         log.debug("Registration data for user tg id: [ {} ]", registerUserData.getTelegramUserId());
-        if (!TelegramAuthValidator.validateInitData(registerUserData.getTelegramInitData(), botToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
-        }
         Boolean registrationSuccess = userService.saveOrUpdateUser(registerUserData);
         return ResponseEntity.ok(registrationSuccess);
     }
