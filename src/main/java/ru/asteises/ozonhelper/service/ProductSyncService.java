@@ -79,7 +79,7 @@ public class ProductSyncService {
                 totalProcessed += productEntities.size();
 
                 // Обновляем прогресс
-                catalog.setProgress(estimateProgress(totalProcessed));
+                catalog.setProgress(estimateProgress(totalProcessed, total));
                 catalog.setLastProcessedId(productEntities.getLast().getProductId().toString());
                 userProductCatalogService.save(catalog);
 
@@ -100,7 +100,8 @@ public class ProductSyncService {
         }
     }
 
-    private int estimateProgress(int processed) {
-        return Math.min(95, processed / 100);
+    private int estimateProgress(int processed, int total) {
+        int percent = (int) ((processed * 100.0) / total);
+        return Math.min(percent, 100);
     }
 }
