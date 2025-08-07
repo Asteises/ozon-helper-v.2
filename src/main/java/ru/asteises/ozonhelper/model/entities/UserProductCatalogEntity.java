@@ -5,7 +5,7 @@ import lombok.*;
 import ru.asteises.ozonhelper.enums.CatalogStatus;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -43,5 +43,5 @@ public class UserProductCatalogEntity {
     private String lastProcessedId;
 
     @OneToMany(mappedBy = "catalog", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductEntity> products;
+    private Set<ProductEntity> products;
 }

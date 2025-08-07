@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -49,5 +49,5 @@ public class ProductEntity {
     private LocalDateTime lastSyncedAt;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductQuantEntity> quants;
+    private Set<ProductQuantEntity> quants;
 }

@@ -70,7 +70,7 @@ public class ProductSyncService {
                 // Если это первый батч — очищаем старые товары
                 if (firstBatch) {
                     // Очищаем, если есть, что очищать
-                    if (!catalog.getProducts().isEmpty()) {
+                    if (catalog.getProducts() != null && !catalog.getProducts().isEmpty()) {
                         productRepository.deleteAll(catalog.getProducts());
                         log.debug("Удалили все старые товары после первой итерации");
                     }

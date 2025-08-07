@@ -12,7 +12,8 @@ import ru.asteises.ozonhelper.model.entities.UserProductCatalogEntity;
 import ru.asteises.ozonhelper.model.ozon.ProductListResponse;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Mapper {
 
@@ -72,13 +73,13 @@ public class Mapper {
                 .build();
 
         if (item.getQuants() != null) {
-            List<ProductQuantEntity> quants = item.getQuants().stream()
+            Set<ProductQuantEntity> quants = item.getQuants().stream()
                     .map(q -> ProductQuantEntity.builder()
                             .product(product)
                             .quantCode(q.getQuantCode())
                             .quantSize(q.getQuantSize())
                             .build())
-                    .toList();
+                    .collect(Collectors.toSet());
             product.setQuants(quants);
         }
 

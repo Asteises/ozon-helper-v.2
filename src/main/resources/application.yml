@@ -25,8 +25,8 @@ ozon:
     url: https://api-seller.ozon.ru
 
 encryption:
-  password: ${ENCRYPT_PASSWORD}
-  salt: ${ENCRYPT_SALT}
+  password: ${ENCRYPT_PASSWORD:123456789}
+  salt: ${ENCRYPT_SALT:5f1b6a0c4d2e9f2a}
 spring:
   application:
     name: ozon-helper
@@ -53,6 +53,7 @@ spring:
       minimum-idle: 2
   flyway:
     baseline-on-migrate: true
+    enabled: false
   jpa:
     hibernate:
       ddl-auto: validate

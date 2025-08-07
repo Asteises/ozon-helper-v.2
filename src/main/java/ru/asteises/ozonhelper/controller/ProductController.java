@@ -2,14 +2,15 @@ package ru.asteises.ozonhelper.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.asteises.ozonhelper.model.CheckUserData;
 import ru.asteises.ozonhelper.model.entities.UserEntity;
 import ru.asteises.ozonhelper.model.entities.UserProductCatalogEntity;
-import ru.asteises.ozonhelper.repository.UserRepository;
 import ru.asteises.ozonhelper.service.ProductSyncService;
 import ru.asteises.ozonhelper.service.UserProductCatalogService;
+import ru.asteises.ozonhelper.service.UserService;
 
 import java.util.Map;
 
@@ -21,13 +22,15 @@ public class ProductController {
 
     private final ProductSyncService productSyncService;
     private final UserProductCatalogService userProductCatalogService;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @PostMapping("/sync/list")
     public ResponseEntity<String> startSync(@RequestBody CheckUserData checkUserData) {
         log.info("Start sync product with init data: {}", checkUserData);
-        UserEntity user = userRepository.findByTelegramUserId(checkUserData.getTelegramUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+        UserEntity user = userService.getUserOrNull(checkUserData.getTelegramUserId());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Пользователь не найден");
+        }
         productSyncService.syncUserProductsAsync(user);
 
         return ResponseEntity.accepted().body("Синхронизация запущена");
