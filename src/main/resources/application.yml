@@ -42,9 +42,6 @@ spring:
     banner-mode: log
   messages:
     encoding: UTF-8
-  web:
-    resources:
-      static-locations: classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/, classpath:/static/miniapp/**
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ozon-helper-db}
     username: ${DB_USER:postgres}
