@@ -22,8 +22,8 @@ public class WebClientConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/miniapp/index.html")
-                .addResourceLocations("classpath:/static/miniapp/index.html")
+        registry.addResourceHandler("/miniapp/**")
+                .addResourceLocations("/resources/", "resources/static/miniapp/", "classpath:/static/miniapp/")
                 .setCachePeriod(0);
     }
 }

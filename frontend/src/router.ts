@@ -18,7 +18,7 @@ const routes: RouteRecordRaw[] = [
     {path: '/profit-report', component: ProfitReportPage},
     {path: '/:pathMatch(.*)*', redirect: '/'},
 ]
-const base = import.meta.env.DEV ? '/' : '/miniapp/'
+const base = import.meta.env.DEV ? '/' : '/'
 
 const router = createRouter({
     history: createWebHistory(base),

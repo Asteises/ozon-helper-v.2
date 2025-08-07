@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class MiniAppController {
 
-    @GetMapping({"/miniapp", "/miniapp/**"})
+    @GetMapping({"/miniapp", "/miniapp/", "/miniapp/**"})
     public String forwardToMiniApp() {
         return "forward:/miniapp/index.html";
     }
