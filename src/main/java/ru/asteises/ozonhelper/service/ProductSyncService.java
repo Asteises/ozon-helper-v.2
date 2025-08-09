@@ -36,7 +36,7 @@ public class ProductSyncService {
 
     public void syncUserProducts(UserEntity userEntity, String taskId) {
         Long userTgId = userEntity.getTelegramUserId();
-        log.debug("Sync products for user: [ {} ]", userTgId);
+        log.debug("Sync products for user: [ {} ] and task id: [ {} ]", userTgId, taskId);
 
         // 1. Проверяем наличие каталога пользователя или создаем новый
         syncStatusService.sendUpdate(taskId, getProcessInfo(taskId, 0));

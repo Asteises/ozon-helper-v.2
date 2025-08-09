@@ -25,20 +25,27 @@ public class SyncStatusService {
         emitter.onTimeout(() -> emitterMap.remove(taskId));
         try {
             emitter.send(SseEmitter.event().name("connected").data("ok"));
-        } catch (Exception ignored) {}
+        } catch (Exception ex) {
+            log.error("Error while sending emitter", ex);
+        }
+        log.info("Emitter registered: [ {} ]", emitter);
     }
 
     public void sendUpdate(String taskId, SyncStatusInfo info) {
+        log.info("Sending update to task: [ {} ]", taskId);
         SseEmitter emitter = emitterMap.get(taskId);
+        log.debug("Found emitter: [ {} ]", emitter);
         if (emitter != null) {
             try {
                 log.info("Sending update to task: [ {} ]", taskId);
                 String json = objectMapper.writeValueAsString(info);
+                log.debug("Sending update json: [ {} ]", json);
 
                 emitter.send(SseEmitter.event()
                         .name("progress")
                         .data(json, MediaType.APPLICATION_JSON));
 
+                log.info("After sending update to task: [ {} ]", taskId);
 
                 if (info.getCatalogStatus() == CatalogStatus.READY || info.getCatalogStatus() == CatalogStatus.FAILED) {
                     emitter.complete();

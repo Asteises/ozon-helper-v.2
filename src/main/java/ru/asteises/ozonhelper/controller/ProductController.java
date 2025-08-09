@@ -12,6 +12,8 @@ import ru.asteises.ozonhelper.service.ProductSyncService;
 import ru.asteises.ozonhelper.service.SyncStatusService;
 import ru.asteises.ozonhelper.service.UserService;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +40,7 @@ public class ProductController {
 
     @GetMapping("/sync/stream")
     public SseEmitter streamSyncStatus(@RequestParam String taskId) {
+        log.info("Start sync product with task id: [ {} ]", taskId);
         SseEmitter emitter = new SseEmitter(0L);
         syncStatusService.registerEmitter(taskId, emitter);
         return emitter;
