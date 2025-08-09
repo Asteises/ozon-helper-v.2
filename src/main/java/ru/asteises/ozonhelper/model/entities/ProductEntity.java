@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -20,13 +21,15 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "catalog_id", nullable = false)
     private UserProductCatalogEntity catalog;
 
+    // ID в системе Ozon
     @Column(name = "product_id", nullable = false)
     private Long productId;
 
+    // ID селлера
     @Column(name = "offer_id")
     private String offerId;
 
@@ -48,6 +51,27 @@ public class ProductEntity {
     @Column(name = "last_synced_at")
     private LocalDateTime lastSyncedAt;
 
+    @Column(name = "content_hash", length = 64, nullable = false)
+    private String contentHash;
+
+    @Column(name = "quants_hash", length = 64)
+    private String quantsHash;
+
+    @Version
+    private Long version;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductQuantEntity> quants;
+    private List<ProductQuantEntity> quants;
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        ProductEntity that = (ProductEntity) object;
+        return Objects.equals(productId, that.productId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(productId);
+    }
 }

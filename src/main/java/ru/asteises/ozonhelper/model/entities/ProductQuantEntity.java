@@ -3,6 +3,9 @@ package ru.asteises.ozonhelper.model.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -17,7 +20,10 @@ public class ProductQuantEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "uuid")
+    private UUID uuid;
+
+    @ManyToOne()
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
@@ -26,4 +32,16 @@ public class ProductQuantEntity {
 
     @Column(name = "quant_size")
     private Integer quantSize;
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        ProductQuantEntity that = (ProductQuantEntity) object;
+        return Objects.equals(uuid, that.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(uuid);
+    }
 }

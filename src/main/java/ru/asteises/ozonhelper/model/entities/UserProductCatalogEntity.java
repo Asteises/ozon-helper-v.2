@@ -5,7 +5,9 @@ import lombok.*;
 import ru.asteises.ozonhelper.enums.CatalogStatus;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -13,7 +15,6 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @Table(name = "user_product_catalog",
         uniqueConstraints = @UniqueConstraint(columnNames = "user_id"))
 public class UserProductCatalogEntity {
@@ -22,7 +23,10 @@ public class UserProductCatalogEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @Column(name = "uuid")
+    private UUID uuid;
+
+    @OneToOne()
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
@@ -43,5 +47,17 @@ public class UserProductCatalogEntity {
     private String lastProcessedId;
 
     @OneToMany(mappedBy = "catalog", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductEntity> products;
+    private List<ProductEntity> products;
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        UserProductCatalogEntity that = (UserProductCatalogEntity) object;
+        return Objects.equals(uuid, that.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(uuid);
+    }
 }

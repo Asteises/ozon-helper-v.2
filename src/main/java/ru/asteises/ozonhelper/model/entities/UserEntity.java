@@ -6,6 +6,7 @@ import ru.asteises.ozonhelper.enums.UserRole;
 import ru.asteises.ozonhelper.enums.UserStatus;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 @Table(name = "users")
 public class UserEntity {
 
@@ -79,6 +79,18 @@ public class UserEntity {
     @Transient
     public boolean hasLastName() {
         return lastName != null && !lastName.isBlank();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        UserEntity that = (UserEntity) object;
+        return Objects.equals(telegramUserId, that.telegramUserId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(telegramUserId);
     }
 }
 

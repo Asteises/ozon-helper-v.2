@@ -24,30 +24,27 @@ public class UserProductCatalogService {
         repository.save(catalogEntity);
     }
 
-    public Optional<UserProductCatalogEntity> getByUserId(UserEntity userEntity) {
-        return repository.findByUserId(userEntity.getId());
-    }
-
     public Optional<UserProductCatalogEntity> getByTelegramUserId(Long telegramUserId) {
-        return repository.findByUser_TelegramUserId(telegramUserId);
+        return repository.findCatalogWithProductsByUserTelegramId(telegramUserId);
     }
 
     @Transactional
-    public Optional<UserProductCatalogEntity> getByUserIdWithProductsAndQuants(UserEntity userEntity) {
-        return repository.findByUserIdWithProductsAndQuants(userEntity.getId());
+    public Optional<UserProductCatalogEntity> getByUserId(UserEntity userEntity) {
+        return repository.findCatalogWithProductsByUserTelegramId(userEntity.getTelegramUserId());
     }
 
     @Transactional
     public UserProductCatalogEntity getOrCreateCatalog(UserEntity userEntity) {
-        log.info("Get or create catalog for user id: [ {} ]", userEntity.getId());
-        Optional<UserProductCatalogEntity> optionalEntity = getByUserIdWithProductsAndQuants(userEntity);
+        Long userTgId = userEntity.getTelegramUserId();
+        log.info("Get or create catalog for user id: [ {} ]", userTgId);
+        Optional<UserProductCatalogEntity> optionalEntity = getByTelegramUserId(userTgId);
         // Если каталог для пользователя уже существует
         if (optionalEntity.isPresent()) {
-            log.info("User catalog already exists with id: [ {} ]", userEntity.getId());
+            log.info("User catalog already exists with id: [ {} ]", userTgId);
             return optionalEntity.get();
         }
         // Иначе, создаем новый каталог
-        log.info("User catalog created for user id: [ {} ]", userEntity.getId());
+        log.info("User catalog created for user id: [ {} ]", userTgId);
         UserProductCatalogEntity catalogEntity = Mapper.initMapUserProductCatalog(userEntity);
         return repository.save(catalogEntity);
     }

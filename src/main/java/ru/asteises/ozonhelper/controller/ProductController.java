@@ -5,14 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.asteises.ozonhelper.model.CheckUserData;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import ru.asteises.ozonhelper.model.RequestData;
 import ru.asteises.ozonhelper.model.entities.UserEntity;
-import ru.asteises.ozonhelper.model.entities.UserProductCatalogEntity;
 import ru.asteises.ozonhelper.service.ProductSyncService;
-import ru.asteises.ozonhelper.service.UserProductCatalogService;
+import ru.asteises.ozonhelper.service.SyncStatusService;
 import ru.asteises.ozonhelper.service.UserService;
-
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -20,31 +18,30 @@ import java.util.Map;
 @RequestMapping("/api/product")
 public class ProductController {
 
-    private final ProductSyncService productSyncService;
-    private final UserProductCatalogService userProductCatalogService;
     private final UserService userService;
+    private final SyncStatusService syncStatusService;
+    private final ProductSyncService productSyncService;
+
 
     @PostMapping("/sync/list")
-    public ResponseEntity<String> startSync(@RequestBody CheckUserData checkUserData) {
-        log.info("Start sync product with init data: {}", checkUserData);
-        UserEntity user = userService.getUserOrNull(checkUserData.getTelegramUserId());
+    public ResponseEntity<String> startSync(@RequestBody RequestData requestData) {
+        log.info("Start sync product with init data: {}", requestData);
+        UserEntity user = userService.getUserOrNull(requestData.getTelegramUserId());
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Пользователь не найден");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(String.format("User with tg id: [ %s ] not found", requestData.getTelegramUserId()));
         }
-        productSyncService.syncUserProductsAsync(user);
 
-        return ResponseEntity.accepted().body("Синхронизация запущена");
+        syncStatusService.registerEmitter(requestData.getTaskId(), new SseEmitter(0L));
+        productSyncService.syncUserProductsAsync(user, requestData.getTaskId());
+
+        return ResponseEntity.accepted().body("Sync completed");
     }
 
-    @GetMapping("/sync/status")
-    public ResponseEntity<Map<String, Object>> getSyncStatus(@RequestBody CheckUserData checkUserData) {
-        UserProductCatalogEntity catalog = userProductCatalogService
-                .getByTelegramUserId(checkUserData.getTelegramUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Каталог не найден"));
-        return ResponseEntity.ok(Map.of(
-                "status", catalog.getStatus(),
-                "progress", catalog.getProgress(),
-                "lastSyncedAt", catalog.getLastSyncedAt()
-        ));
+    @GetMapping("/sync/stream")
+    public SseEmitter streamSyncStatus(@RequestParam String taskId) {
+        SseEmitter emitter = new SseEmitter(0L);
+        syncStatusService.registerEmitter(taskId, emitter);
+        return emitter;
     }
+
 }
