@@ -67,6 +67,7 @@ public class TelegramAuthValidator {
             log.error("Failed to hmac sha256", e);
             throw new RuntimeException(e);
         }
+        log.debug("=== [TelegramAuthValidator] END VALIDATION ===");
         return true;
     }
 
