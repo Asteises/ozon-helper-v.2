@@ -156,7 +156,7 @@ public class ProductSyncService {
     private SyncStatusInfo getProcessInfo(String taskId, int processed) {
         return SyncStatusInfo.builder()
                 .taskId(taskId)
-                .status(CatalogStatus.SYNCING)
+                .catalogStatus(CatalogStatus.SYNCING)
                 .syncStatus(SyncStatus.RUNNING)
                 .progress(processed)
                 .startedAt(LocalDateTime.now())

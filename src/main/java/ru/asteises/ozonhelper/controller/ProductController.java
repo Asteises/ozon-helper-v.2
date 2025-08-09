@@ -31,7 +31,6 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(String.format("User with tg id: [ %s ] not found", requestData.getTelegramUserId()));
         }
 
-        syncStatusService.registerEmitter(requestData.getTaskId(), new SseEmitter(0L));
         productSyncService.syncUserProductsAsync(user, requestData.getTaskId());
 
         return ResponseEntity.accepted().body("Sync completed");

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class SyncStatusInfo {
 
     private String taskId;
-    private CatalogStatus status;
+    private CatalogStatus catalogStatus;
     private SyncStatus syncStatus;
     private int progress;
     private LocalDateTime startedAt;

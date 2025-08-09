@@ -1,6 +1,8 @@
 package ru.asteises.ozonhelper.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import ru.asteises.ozonhelper.enums.CatalogStatus;
@@ -14,11 +16,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SyncStatusService {
 
     private final Map<String, SseEmitter> emitterMap = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     public void registerEmitter(String taskId, SseEmitter emitter) {
         emitterMap.put(taskId, emitter);
         emitter.onCompletion(() -> emitterMap.remove(taskId));
         emitter.onTimeout(() -> emitterMap.remove(taskId));
+        try {
+            emitter.send(SseEmitter.event().name("connected").data("ok"));
+        } catch (Exception ignored) {}
     }
 
     public void sendUpdate(String taskId, SyncStatusInfo info) {
@@ -26,8 +33,14 @@ public class SyncStatusService {
         if (emitter != null) {
             try {
                 log.info("Sending update to task: [ {} ]", taskId);
-                emitter.send(info);
-                if (info.getStatus() == CatalogStatus.READY || info.getStatus() == CatalogStatus.FAILED) {
+                String json = objectMapper.writeValueAsString(info);
+
+                emitter.send(SseEmitter.event()
+                        .name("progress")
+                        .data(json, MediaType.APPLICATION_JSON));
+
+
+                if (info.getCatalogStatus() == CatalogStatus.READY || info.getCatalogStatus() == CatalogStatus.FAILED) {
                     emitter.complete();
                     emitterMap.remove(taskId);
                     log.info("Task: [ {} ] completed", taskId);
